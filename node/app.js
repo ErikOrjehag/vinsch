@@ -6,7 +6,11 @@ var charDur = 11. / baudRate;
 var tSP = 2 * charDur;
 
 var port = new SerialPort("/dev/null", {
-  baudRate: baudRate
+  autoOpen: true,
+  baudRate: baudRate,
+  dataBits: 8,
+  stopBits: 1,
+  parity: 'even'
 });
 
 function sendTelegram(adress, data) {
