@@ -1,11 +1,19 @@
 var SerialPort = require("serialport");
+var NanoTimer = require("nanotimer");
+var util = require("util");
 var MockBinding = SerialPort.Binding;
 
+var timer = new NanoTimer();
+
+var S_TO_N = 10e9
+
 var baudRate = 9600;
-var charDur = 11. / baudRate;
+var charDur = (11. / baudRate) * S_TO_N;
 var tSP = 2 * charDur;
 
-var port = new SerialPort("/dev/null", {
+console.log(charDur)
+
+var port = new SerialPort("/dev/cu.usbserial-FT1MJ3Q6", {
   autoOpen: true,
   baudRate: baudRate,
   dataBits: 8,
@@ -31,19 +39,30 @@ function sendTelegram(adress, data) {
 
   msg.push(BCC);
 
+  port.write(new Buffer(msg));
+
   var sendByte = function(msg) {
     if (msg.length > 0) {
       port.write(new Buffer([msg[0]]));
       msg = msg.slice(1);
-      setTimeout(() => {
+      timer.setTimeout(() => {
         sendByte(msg);
-      }, charDur);
+      }, null, util.format("%du", Math.round(charDur)));
     }
   }
 
-  setTimeout(() => {
+  timer.setTimeout(() => {
     sendByte(msg);
-  }, tSP);
+  }, null, util.format("%du", Math.round(tSP)));
 }
 
-sendTelegram(0, [1, 2, 3]);
+sendTelegram(0, [1, 2, 8]);
+
+//port.write(new Buffer([0xf0, 0xfa, 0xfe]));
+
+setTimeout(function() {
+  console.log("bye")
+}, 1000)
+
+
+
