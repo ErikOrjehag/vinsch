@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Vinsch</title>
+  </head>
+  <body>
+
+    <input type="text" value="0" class="dial">
+
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="jquery.knob.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      var degrees = 0;
+
+      var socket = io();
+
+      $(function() {
+        var v = 0;
+        var up = false;
+        var down = false;
+        var step = 1;
+
+        $(".dial").knob({
+          // Settings
+          min: 0,
+          max: 360,
+          step: step,
+          stopper : false,
+          // Visual
+          displayInput: false,
+          width: 500,
+          height: 500,
+          cursor: 30,
+          // Hook
+          change : function () {
+            var d = v - this.cv;
+            if (d != 0) {
+              if (d > 180) d -= 360;
+              else if (d < -180) d += 360;
+              v = this.cv;
+              degrees += d;
+              console.log(degrees);
+              socket.emit("knob", degrees);
+            }
+          }
+        });
+      });
+    </script>
+
+  </body>
+</html>
