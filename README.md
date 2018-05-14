@@ -2,5 +2,6 @@
 
 ## Dependencies
 
-* Arduino *
+**Arduino**
+
 https://github.com/PaulStoffregen/Encoder
