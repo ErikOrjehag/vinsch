@@ -2,6 +2,7 @@ var SerialPort = require("serialport");
 var NanoTimer = require("nanotimer");
 var util = require("util");
 var MockBinding = SerialPort.Binding;
+var Readline = SerialPort.parsers.Readline
 
 var timer = new NanoTimer();
 
@@ -11,8 +12,8 @@ var charDur = (11. / baudRate) * S_TO_N;
 var tSP = 2 * charDur;
 var tSPstr = util.format("%du", Math.round(tSP))*/
 
-var deviceInverter = "/dev/null" // "/dev/cu.usbserial-FT1MJ3Q6";
-var deviceEncoder = "/dev/null"
+var deviceInverter = "/dev/ttyUSB1" // "/dev/cu.usbserial-FT1MJ3Q6";
+var deviceEncoder = "/dev/ttyUSB0"
 
 var portInverter = new SerialPort(deviceInverter, {
   autoOpen: true,
@@ -78,6 +79,8 @@ stdin.setRawMode(true);
 stdin.resume();
 stdin.setEncoding( 'utf8' );
 
+var posCtrl = false;
+
 // on any data into stdin
 stdin.on('data', function(key) {
 
@@ -100,6 +103,7 @@ stdin.on('data', function(key) {
 
   } else if (key === '1') {  // Go from "Switch-on disabled" -> "Ready for switch-on"
 
+    posCtrl = false;
     var PZD = create_PZD(word_from([1, 2, 10]), 0);
     var data = create_PPO1(null, PZD);
 
@@ -113,6 +117,9 @@ stdin.on('data', function(key) {
     var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10, 12]), 0x2000);
     var data = create_PPO1(null, PZD);
 
+  } else if (key === '4') {
+    posCtrl = true;
+    return;
   }
 
   var addr = 0
@@ -126,8 +133,13 @@ portEncoder.on('error', function(err) {
   console.log('Error encoder port: ', err.message);
 });
 
-portEncoder.on("data", function (data) {
-  console.log("encoder:", data);
+var encoderAngle = 0;
+
+var parser = new Readline();
+portEncoder.pipe(parser);
+parser.on("data", function (data) {
+  encoderAngle = parseInt(data);
+  //console.log("encoder:", encoderAngle);
 });
 
 var express = require('express');
@@ -137,16 +149,43 @@ var io = require('socket.io')(http);
 
 app.use(express.static('public'));
 
+var knobAngle = 0;
+
 io.on('connection', function (socket) {
   console.log('a user connected');
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
   socket.on("knob", function (degrees) {
-    console.log(degrees);
+    knobAngle = degrees;
+    //console.log("knob:", knobAngle);
   });
 });
 
 http.listen(8080, function () {
   console.log('listening on port 8080');
 });
+
+
+setInterval(function () {
+
+  if (!posCtrl) return;
+
+  var diff = knobAngle - encoderAngle;
+  console.log("diff:", diff);
+
+  var p = Math.min(1, Math.abs(diff) / 180.0);
+
+  console.log("p:", p);
+
+  var freq = 0x4000 * p;
+
+  var dir = diff < 0 ? 11 : 12;
+
+  var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10, dir]), freq);
+
+  var data = create_PPO1(null, PZD);
+  var addr = 0
+  sendTelegram(addr, data);
+
+}, 50);

@@ -34,7 +34,7 @@
           cursor: 30,
           // Hook
           change : function () {
-            var d = v - this.cv;
+            var d = this.cv - v;
             if (d != 0) {
               if (d > 180) d -= 360;
               else if (d < -180) d += 360;

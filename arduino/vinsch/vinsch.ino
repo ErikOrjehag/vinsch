@@ -12,6 +12,6 @@ void loop() {
   long newPosition = ecoder.read();
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
-    Serial.println(newPosition);
+    Serial.println(round(360.0 * (newPosition / 60000.0)));
   }
 }
