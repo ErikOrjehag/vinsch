@@ -166,19 +166,29 @@ http.listen(8080, function () {
   console.log('listening on port 8080');
 });
 
+var prevDiff = 0;
 
 setInterval(function () {
+
+  var kd = 0.001;
+  var kp = 180.0;
 
   if (!posCtrl) return;
 
   var diff = knobAngle - encoderAngle;
+  var d = (prevDiff - diff) * kd;
+  prevDiff = diff;
   console.log("diff:", diff);
 
-  var p = Math.min(1, Math.abs(diff) / 180.0);
+  var p = Math.min(1, Math.abs(diff) / kp);
 
   console.log("p:", p);
 
-  var freq = 0x4000 * p;
+  var magic = Math.max(0, p - d);
+
+  console.log("magic:", magic)
+
+  var freq = 0x4000 * magic;
 
   var dir = diff < 0 ? 11 : 12;
 
