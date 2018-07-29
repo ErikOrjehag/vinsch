@@ -1,19 +1,8 @@
 var SerialPort = require("serialport");
-var NanoTimer = require("nanotimer");
-var util = require("util");
-var MockBinding = SerialPort.Binding;
 var Readline = SerialPort.parsers.Readline
 
-var timer = new NanoTimer();
-
-var baudRate = 9600; // 38400
-/*var S_TO_N = 10e9
-var charDur = (11. / baudRate) * S_TO_N;
-var tSP = 2 * charDur;
-var tSPstr = util.format("%du", Math.round(tSP))*/
-
-var deviceInverter = "/dev/ttyUSB1" // "/dev/cu.usbserial-FT1MJ3Q6";
-var deviceEncoder = "/dev/ttyUSB0"
+var baudRate = 38400; // 38400 9600
+var deviceInverter = "/dev/ttyUSB0" // "/dev/cu.usbserial-FT1MJ3Q6";
 
 var portInverter = new SerialPort(deviceInverter, {
   autoOpen: true,
@@ -31,24 +20,25 @@ portInverter.on('error', function(err) {
 var readbuf = new Buffer([]);
 portInverter.on('readable', function () {
   readbuf = Buffer.concat([readbuf, portInverter.read()]);
-  if (readbuf.length == 16) {
+  if (readbuf.length == 20) {
     console.log('Response:', readbuf);
     readbuf = new Buffer([]);
   }
 });
 
-function sendTelegram(address, data) {
+function sendTelegram(to, PPO) {
 
   var STX = 0x2; // Start byte
 
-  var LEN = data.length + 2; // Lenght of (ADDR + data.. + BCC)
+  var LEN = PPO.length + 2; // Lenght of (ADDR + PPO.. + BCC)
 
   var echo = 0; // Should slave respond with echo?
-  var broadcast = 0; // Broadcast to all slave?
+  var broadcast = (to == null) ? 1 : 0; // Broadcast to all slaves?
+  var address = (to == null) ? 0 : to;
   var ADDR = (echo << 6) | (broadcast << 5) | address;
 
   // The telegram message
-  var msg = [STX, LEN, ADDR].concat(data);
+  var msg = [STX, LEN, ADDR].concat(PPO);
 
   // XOR check-sum
   var BCC = msg.slice(1).reduce((acc, val) => acc ^ val, msg[0]);
@@ -57,7 +47,7 @@ function sendTelegram(address, data) {
 
   var buff = new Buffer(msg)
 
-  console.log("sendTelegram", address, buff);
+  console.log("sendTelegram", to, buff);
 
   portInverter.write(buff);
 }
@@ -66,12 +56,43 @@ function word_from(bits) {
   return bits.reduce((acc, position) => acc | (1 << position), 0);
 }
 
-function create_PZD(STW, SW1) {
-  return (STW << 16) | SW1;
+function create_PKW(PKE, IND, PWE) {
+  return [
+    PKE >> 8 & 0xff,
+    PKE & 0xff,
+    IND >> 8 & 0xff,
+    IND & 0xff,
+    PWE >> 24 & 0xff,
+    PWE >> 16 & 0xff,
+    PWE >> 8 & 0xff,
+    PWE & 0xff,
+  ]
 }
 
-function create_PPO1(PKW, PZD) {
-  return [0, 0, 0, 0, 0, 0, 0, 0, PZD>>24, (PZD>>16)&0xff, (PZD>>8)&0xff, PZD&0xff];
+function create_PZD(STW, SW1, SW2, SW3) {
+  return [
+    STW >> 8 & 0xff,
+    STW & 0xff,
+    SW1 >> 8 & 0xff,
+    SW1 & 0xff,
+    SW2 >> 8 & 0xff,
+    SW2 & 0xff,
+    SW3 >> 8 & 0xff,
+    SW3 & 0xff
+  ]
+}
+
+function set_position(revolutions) {
+  var increments = Math.round(revolutions * 1000);
+  var STW = word_from([0, 1, 2, 3, 4, 5, 6, 10, 12]);
+  var PZD = create_PZD(STW, 0, increments >> 16, increments & 0xffff);
+  var PKW = create_PKW(0, 0, 0);
+  var PPO = create_PPO2(PKW, PZD);
+  sendTelegram(addr, PPO);
+}
+
+function create_PPO2(PKW, PZD) {
+  return PKW.concat(PZD);
 }
 
 var stdin = process.stdin;
@@ -79,7 +100,11 @@ stdin.setRawMode(true);
 stdin.resume();
 stdin.setEncoding( 'utf8' );
 
-var posCtrl = false;
+var uiControl = false;
+var addr = null;
+var pos = 0;
+var interval;
+var toggle = false;
 
 // on any data into stdin
 stdin.on('data', function(key) {
@@ -91,55 +116,62 @@ stdin.on('data', function(key) {
 
   var data = null
 
-  if (key === 'a') { // Standby example
-
-    var PZD = create_PZD(word_from([1, 2, 3, 4, 5, 6, 10]), 0);
-    var data = create_PPO1(null, PZD);
-
-  } else if (key === 'b') { // Setpoint 50% example
-
-    var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10]), 0x2000);
-    var data = create_PPO1(null, PZD);
-
-  } else if (key === '1') {  // Go from "Switch-on disabled" -> "Ready for switch-on"
-
-    posCtrl = false;
-    var PZD = create_PZD(word_from([1, 2, 10]), 0);
-    var data = create_PPO1(null, PZD);
-
-  } else if (key === '2') { // 50% right
-
-    var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10, 11]), 0x2000);
-    var data = create_PPO1(null, PZD);
-
-  } else if (key === '3') { // 50% left
-
-    var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10, 12]), 0x2000);
-    var data = create_PPO1(null, PZD);
-
-  } else if (key === '4') {
-    posCtrl = true;
-    return;
+  if (key === 'q') // Go from "Switch-on disabled" -> "Ready for switch-on"
+  {
+    uiControl = false;
+    var STW = word_from([1, 2, 10]);
+    var PZD = create_PZD(STW, 0, 0, 0);
+    var PKW = create_PKW(0, 0, 0);
+    var PPO = create_PPO2(PKW, PZD);
+    sendTelegram(null, PPO);
   }
-
-  var addr = 0
-  sendTelegram(addr, data);
-
-});
-
-var portEncoder = new SerialPort(deviceEncoder);
-
-portEncoder.on('error', function(err) {
-  console.log('Error encoder port: ', err.message);
-});
-
-var encoderAngle = 0;
-
-var parser = new Readline();
-portEncoder.pipe(parser);
-parser.on("data", function (data) {
-  encoderAngle = parseInt(data);
-  //console.log("encoder:", encoderAngle);
+  else if (key === 'p') // Start UI control
+  {
+    uiControl = true;
+  }
+  else if (key === 'a')
+  {
+    set_position(0);
+  }
+  else if (key === 'b')
+  {
+    set_position(0.25);
+  }
+  else if (key === 'c')
+  {
+    if (interval) {
+      clearInterval(interval);
+    } else {
+      interval = setInterval(function () {
+        if (toggle) {
+          set_position(0.3);
+        } else {
+          set_position(-0.3);
+        }
+        toggle = !toggle;
+      }, 5000);
+    }
+  }
+  else if (key === '0')
+  {
+    addr = 0;
+  }
+  else if (key === '1')
+  {
+    addr = 1;
+  }
+  else if (key === '2')
+  {
+    addr = 2;
+  }
+  else if (key === '3')
+  {
+    addr = 3;
+  }
+  else if (key === '4')
+  {
+    addr = null;
+  }
 });
 
 var express = require('express');
@@ -153,49 +185,32 @@ var knobAngle = 0;
 
 io.on('connection', function (socket) {
   console.log('a user connected');
+
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
+
   socket.on("knob", function (degrees) {
-    knobAngle = degrees;
-    //console.log("knob:", knobAngle);
+    if (uiControl) {
+      console.log("knob:", degrees);
+      knobAngle = degrees;
+    }
   });
+
 });
 
 http.listen(8080, function () {
   console.log('listening on port 8080');
 });
 
-var prevDiff = 0;
 
 setInterval(function () {
-
-  var kd = 0.001;
-  var kp = 180.0;
-
-  if (!posCtrl) return;
-
-  var diff = knobAngle - encoderAngle;
-  var d = (prevDiff - diff) * kd;
-  prevDiff = diff;
-  console.log("diff:", diff);
-
-  var p = Math.min(1, Math.abs(diff) / kp);
-
-  console.log("p:", p);
-
-  var magic = Math.max(0, p - d);
-
-  console.log("magic:", magic)
-
-  var freq = 0x4000 * magic;
-
-  var dir = diff < 0 ? 11 : 12;
-
-  var PZD = create_PZD(word_from([0, 1, 2, 3, 4, 5, 6, 10, dir]), freq);
-
-  var data = create_PPO1(null, PZD);
-  var addr = 0
-  sendTelegram(addr, data);
-
-}, 50);
+  if (uiControl) {
+    var increments = Math.round((knobAngle / 360.0) * 1000);
+    var STW = word_from([0, 1, 2, 3, 4, 5, 6, 10, 12]);
+    var PZD = create_PZD(STW, 0, increments >> 16, increments & 0xffff);
+    var PKW = create_PKW(0, 0, 0);
+    var PPO = create_PPO2(PKW, PZD);
+    sendTelegram(addr, PPO);
+  }
+}, 100);

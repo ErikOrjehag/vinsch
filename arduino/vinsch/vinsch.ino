@@ -13,5 +13,6 @@ void loop() {
   if (newPosition != oldPosition) {
     oldPosition = newPosition;
     Serial.println(round(360.0 * (newPosition / 60000.0)));
+    //Serial.println(newPosition);
   }
 }
