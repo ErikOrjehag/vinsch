@@ -164,6 +164,13 @@ http.listen(8080, function () {
 
 setInterval(function () {
   if (uiControl) {
-    inverter.set_revolutions(id, knobAngle / 360.0);
+    v = knobAngle / 360.0;
+    three.go_to({
+      x: v,
+      y: v,
+      z: 1.1
+    });
+
+    //inverter.set_revolutions(id, knobAngle / 360.0);
   }
-}, 100);
+}, 200);

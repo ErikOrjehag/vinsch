@@ -31,7 +31,7 @@ var p = {
 }
 
 var H = Math.min(p[1].z, p[2].z, p[3].z) - 0.0;
-var SLACK = 0.92;
+var SLACK = 0.96;
 
 function go_to_specific(id, point, h) {
   if (h == undefined) h = H;

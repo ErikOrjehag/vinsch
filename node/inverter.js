@@ -3,7 +3,7 @@ var SerialPort = require("serialport");
 var utils = require("./utils.js");
 
 var baudRate = 38400;
-var deviceInverter = "/dev/ttyUSB0"
+var deviceInverter = "/dev/tty.usbserial-FT1MJ3Q6"; //"/dev/ttyUSB0";
 
 var WHEEL_RADIUS = 0.25
 
