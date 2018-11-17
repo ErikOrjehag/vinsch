@@ -1,52 +1,49 @@
 <html>
   <head>
     <title>Vinsch</title>
+    <link rel="stylesheet" type="text/css" href="bulma.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   </head>
   <body>
 
-    <input type="text" value="0" class="dial">
+    <div class="wrap">
+      <div class="v-scroll">
+        <table class="keyframes table is-bordered is-fullwidth">
+          <tbody>
+            <tr>
+              <td>243</td>
+              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
+              <td>5s</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <td>243</td>
+              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
+              <td>5s</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <td>243</td>
+              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
+              <td>5s</td>
+              <td>...</td>
+            </tr>
+            <tr>
+              <td>243</td>
+              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
+              <td>5s</td>
+              <td>...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <script src="jquery-3.3.1.min.js"></script>
     <script src="jquery.knob.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-
-    <script>
-      var degrees = 0;
-
-      var socket = io();
-
-      $(function() {
-        var v = 0;
-        var up = false;
-        var down = false;
-        var step = 1;
-
-        $(".dial").knob({
-          // Settings
-          min: 0,
-          max: 360,
-          step: step,
-          stopper : false,
-          // Visual
-          displayInput: false,
-          width: 500,
-          height: 500,
-          cursor: 30,
-          // Hook
-          change : function () {
-            var d = this.cv - v;
-            if (d != 0) {
-              if (d > 180) d -= 360;
-              else if (d < -180) d += 360;
-              v = this.cv;
-              degrees += d;
-              console.log(degrees);
-              socket.emit("knob", degrees);
-            }
-          }
-        });
-      });
-    </script>
+    <script src="angular.js"></script>
 
   </body>
 </html>

@@ -1,5 +1,6 @@
 
 var inverter = require("./inverter.js");
+var three = require("./three-d.js");
 
 var stdin = process.stdin;
 stdin.setRawMode(true);
@@ -33,11 +34,11 @@ stdin.on('data', function(key) {
   }
   else if (key === 'a')
   {
-    inverter.set_position(id, 0);
+    inverter.set_revolutions(id, 0);
   }
   else if (key === 'b')
   {
-    inverter.set_position(id, 0.25);
+    inverter.set_revolutions(id, 2.0);
   }
   else if (key === 'c')
   {
@@ -46,9 +47,9 @@ stdin.on('data', function(key) {
     } else {
       interval = setInterval(function () {
         if (toggle) {
-          inverter.set_position(id, 0.3);
+          inverter.set_revolutions(id, 0.3);
         } else {
-          inverter.set_position(id, -0.3);
+          inverter.set_revolutions(id, -0.3);
         }
         toggle = !toggle;
       }, 5000);
@@ -74,11 +75,49 @@ stdin.on('data', function(key) {
   {
     id = null;
   }
-  else if (key === 'r') {
+  else if (key === 'r')
+  {
     inverter.start_reference_run(id);
   }
-  else if (key === 't') {
+  else if (key === 't')
+  {
     inverter.finish_reference_run(id);
+  }
+  else if (key === 'y')
+  {
+    inverter.set_length(id, 2.0);
+  }
+  else if (key === 'h')
+  {
+    three.go_to({
+      x: 0,
+      y: 0,
+      z: 2.0
+    });
+  }
+  else if (key === 'j')
+  {
+    three.go_to({
+      x: -1.2,
+      y: 1.3,
+      z: 2.0
+    });
+  }
+  else if (key === 'k')
+  {
+    three.go_to({
+      x: -1.2,
+      y: 1.3,
+      z: 0.6
+    });
+  }
+  else if (key === 'l')
+  {
+    three.go_to({
+      x: -1.2,
+      y: 1.3,
+      z: 0.3
+    });
   }
 });
 
@@ -105,6 +144,18 @@ io.on('connection', function (socket) {
     }
   });
 
+  socket.on("start-reference-run", function (id) {
+    inverter.start_reference_run(id);
+  });
+
+  socket.on("finish-reference-run", function (id) {
+    inverter.finish_reference_run(id);
+  });
+
+  socket.on("home-specific", function (id) {
+    three.home_specific(id);
+  });
+
 });
 
 http.listen(8080, function () {
@@ -113,6 +164,6 @@ http.listen(8080, function () {
 
 setInterval(function () {
   if (uiControl) {
-    inverter.set_position(id, knobAngle / 360.0);
+    inverter.set_revolutions(id, knobAngle / 360.0);
   }
 }, 100);

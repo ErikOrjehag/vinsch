@@ -1,8 +1,11 @@
 
 var SerialPort = require("serialport");
+var utils = require("./utils.js");
 
-var baudRate = 38400; // 38400 9600
-var deviceInverter = "/dev/ttyUSB0" // "/dev/cu.usbserial-FT1MJ3Q6";
+var baudRate = 38400;
+var deviceInverter = "/dev/ttyUSB0"
+
+var WHEEL_RADIUS = 0.25
 
 var portInverter = new SerialPort(deviceInverter, {
   autoOpen: true,
@@ -101,7 +104,7 @@ exports.startup = function () {
   sendTelegram(null, PPO);
 };
 
-exports.set_position = function (id, revolutions) {
+exports.set_revolutions = function (id, revolutions) {
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
@@ -110,6 +113,13 @@ exports.set_position = function (id, revolutions) {
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
+};
+
+exports.set_length = function (id, length) {
+  var radius = WHEEL_RADIUS;
+  var revs = length / (2.0*Math.PI*radius);
+  console.log("length", length, "radius", radius, "revs", revs);
+  exports.set_revolutions(id, revs);
 };
 
 exports.start_reference_run = function (id) {
@@ -124,7 +134,7 @@ exports.start_reference_run = function (id) {
   sendTelegram(id, PPO);
 };
 
-exports.finish_reference_run = function (id) {
+exports.finish_reference_run = async function (id) {
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
     id == 0 ? 12 : 11, // direction left/right
@@ -139,14 +149,12 @@ exports.finish_reference_run = function (id) {
   // This will toggle the 9:th bit off again and
   // complete the reference run. Think of bit 9
   // as a homing push button.
-  setTimeout(function () {
-    exports.start_reference_run(id);
+  await utils.wait(100);
+  exports.start_reference_run(id);
 
-    // Need to do this to break out from reference
-    // run squence. Can not do multiple reference
-    // runs after each other otherwise.
-    setTimeout(function () {
-      exports.set_position(id, 0);
-    }, 100);
-  }, 100);
+  // Need to do this to break out from reference
+  // run squence. Can not do multiple reference
+  // runs after each other otherwise.
+  await utils.wait(100);
+  exports.set_revolutions(id, 0);
 };
