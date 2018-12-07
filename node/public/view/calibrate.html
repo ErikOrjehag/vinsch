@@ -1,0 +1,20 @@
+<div class="section">
+  <div class="container">
+    <a href="#!">Back</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+
+    <div class="select">
+      <select ng-model="model.selectedMotor" ng-options="motor*1 as motor for motor in model.motors"></select>
+    </div>
+
+    <div class="button" ng-click="startReferenceRun()">Reference run</div>
+    <div class="button" ng-click="finishReferenceRun()">Finish</div>
+    <div class="button" ng-click="homeSpecific()">Home</div>
+    <div class="button" ng-click="extendSpecific()">+</div>
+
+  </div>
+</div>

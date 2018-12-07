@@ -1,50 +1,22 @@
 <html>
   <head>
     <title>Vinsch</title>
-    <link rel="stylesheet" type="text/css" href="bulma.css" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="style/bulma.css" />
+    <link rel="stylesheet" type="text/css" href="style/style.css" />
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   </head>
-  <body>
+  <body ng-app="app">
 
-    <div class="wrap">
-      <div class="v-scroll">
-        <table class="keyframes table is-bordered is-fullwidth">
-          <tbody>
-            <tr>
-              <td>243</td>
-              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
-              <td>5s</td>
-              <td>...</td>
-            </tr>
-            <tr>
-              <td>243</td>
-              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
-              <td>5s</td>
-              <td>...</td>
-            </tr>
-            <tr>
-              <td>243</td>
-              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
-              <td>5s</td>
-              <td>...</td>
-            </tr>
-            <tr>
-              <td>243</td>
-              <td>5.53;&nbsp;&nbsp;2.10;&nbsp;&nbsp;1.52</td>
-              <td>5s</td>
-              <td>...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <div ng-view></div>
 
-    <script src="jquery-3.3.1.min.js"></script>
-    <script src="jquery.knob.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="angular.js"></script>
-    <script src="angular-route.js"></script>
+    <script src="lib/jquery-3.3.1.min.js"></script>
+    <script src="lib/jquery.knob.min.js"></script>
+    <script src="lib/angular.js"></script>
+    <script src="lib/angular-route.js"></script>
+    <script src="script/init.js"></script>
+    <script src="script/CalibrateController.js"></script>
+    <script src="script/SocketFactory.js"></script>
 
   </body>
 </html>
