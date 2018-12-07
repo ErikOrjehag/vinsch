@@ -7,6 +7,8 @@ var deviceInverter = "/dev/tty.usbserial-FT1MJ3Q6"; //"/dev/ttyUSB0";
 
 var WHEEL_RADIUS = 0.25
 
+state = [0, 0, 0, 0];
+
 var portInverter = new SerialPort(deviceInverter, {
   autoOpen: true,
   baudRate: baudRate,
@@ -105,6 +107,7 @@ exports.startup = function () {
 };
 
 exports.set_revolutions = function (id, revolutions) {
+  state[id] = revolutions;
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
@@ -113,6 +116,10 @@ exports.set_revolutions = function (id, revolutions) {
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
+};
+
+exports.extend_specific = function (id) {
+  exports.set_revolutions(id, state[id] + 0.1);
 };
 
 exports.set_length = function (id, length) {

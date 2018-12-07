@@ -32,8 +32,13 @@ var p = {
 
 var H = Math.min(p[1].z, p[2].z, p[3].z) - 0.0;
 var SLACK = 0.96;
+var state = { x: 0, y: 0, z: 0 };
 
 function go_to_specific(id, point, h) {
+  state.x = point.x;
+  state.y = point.y;
+  state.z = point.z;
+
   if (h == undefined) h = H;
 
   var a = Math.sqrt(
@@ -59,4 +64,13 @@ exports.go_to = async function (point) {
     go_to_specific(i, point);
     await utils.wait(50);
   }
+};
+
+exports.move_delta = async function (delta) {
+  new_point = {
+    x: state.x + delta.x,
+    y: state.y + delta.y,
+    z: state.z + delta.z
+  };
+  await exports.go_to(new_point);
 };

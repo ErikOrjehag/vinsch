@@ -6,13 +6,13 @@ var app = angular.module('app', ['ngRoute'])
   .when('/', {
     templateUrl: 'view/home.html'
   })
-  .when('/play', {
-    templateUrl: 'view/play.html',
-    controller: 'PlayController',
+  .when('/shows', {
+    templateUrl: 'view/shows.html',
+    controller: 'ShowsController',
   })
-  .when('/edit', {
-    templateUrl: 'view/edit.html',
-    controller: 'EditController',
+  .when('/show/:id', {
+    templateUrl: 'view/show.html',
+    controller: 'ShowController',
   })
   .when('/calibrate', {
     templateUrl: 'view/calibrate.html',
@@ -23,10 +23,25 @@ var app = angular.module('app', ['ngRoute'])
   //$locationProvider.html5Mode(true);
 })
 
-.controller('PlayController', function ($scope) {
+
+.controller('ShowsController', function ($scope) {
 
 })
 
-.controller('EditController', function ($scope) {
+.controller('ShowController', function ($scope) {
 
 })
+
+
+app.directive('suchHref', ['$location', function ($location) {
+  return{
+    restrict: 'A',
+    link: function (scope, element, attr) {
+      element.attr('style', 'cursor:pointer');
+      element.on('click', function(){
+        $location.path(attr.suchHref)
+        scope.$apply();
+      });
+    }
+  }
+}]);
