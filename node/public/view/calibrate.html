@@ -19,22 +19,19 @@
     <div class="button" ng-click="homeSpecific()">H</div>
 
   </div>
-</div>
 
-<hr>
+  <hr>
 
-<div class="section">
   <div class="container" style="text-align: center;">
-    <div class="button" ng-click="homeAll()">Home</div>
+    <div class="button" ng-click="home()">Home</div>
+    <div class="button" ng-click="home()">Stop</div>
     <div style="height: 50px"></div>
-    <div joystick></div>
-    <div joystick is-1d></div>
+    <div joystick is-1d output="model.joyZ"></div>
+    <div joystick output="model.joyXY"></div>
   </div>
-</div>
 
-<hr>
+  <hr>
 
-<div class="section">
   <div class="container">
     Layout
   </div>

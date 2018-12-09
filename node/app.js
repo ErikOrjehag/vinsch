@@ -152,16 +152,28 @@ io.on('connection', function (socket) {
     inverter.finish_reference_run(id);
   });
 
-  socket.on("extend-specific", function (id) {
-    inverter.extend_specific(id);
+  socket.on("zero-specific", function (id) {
+    inverter.set_length(id, 0);
+  });
+
+  socket.on("extend-specific", function (id, delta_revs) {
+    inverter.extend_specific(id, delta_revs);
   });
 
   socket.on("home-specific", function (id) {
     three.home_specific(id);
   });
 
-  socket.on("move-delta", function (delta) {
-    tree.move_delta(delta);
+  socket.on("home", function () {
+    three.home();
+  });
+
+  socket.on("stop", function () {
+    inverter.startup();
+  });
+
+  socket.on("move", function (delta) {
+    three.move(delta);
   });
 
 });

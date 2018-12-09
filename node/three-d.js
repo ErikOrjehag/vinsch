@@ -66,7 +66,11 @@ exports.go_to = async function (point) {
   }
 };
 
-exports.move_delta = async function (delta) {
+exports.home = function () {
+  exports.go_to(p["home"]);
+};
+
+exports.move = async function (delta) {
   new_point = {
     x: state.x + delta.x,
     y: state.y + delta.y,

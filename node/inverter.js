@@ -118,8 +118,8 @@ exports.set_revolutions = function (id, revolutions) {
   sendTelegram(id, PPO);
 };
 
-exports.extend_specific = function (id) {
-  exports.set_revolutions(id, state[id] + 0.1);
+exports.extend_specific = function (id, delta_revs) {
+  exports.set_revolutions(id, state[id] + delta_revs);
 };
 
 exports.set_length = function (id, length) {

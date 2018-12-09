@@ -3,7 +3,9 @@ app.controller('CalibrateController', function ($scope, socket) {
 
   $scope.model = {
     motors: ["0", "1", "2", "3"],
-    selectedMotor: 0
+    selectedMotor: 0,
+    joyXY: [0, 0],
+    joyZ: [0, 0]
   };
 
   $scope.startReferenceRun = function () {
@@ -21,9 +23,39 @@ app.controller('CalibrateController', function ($scope, socket) {
     socket.emit("home-specific", $scope.model.selectedMotor);
   };
 
+  $scope.zeroSpecific = function () {
+    console.log("zeroSpecific: %d", $scope.model.selectedMotor);
+    socket.emit("zero-specific", $scope.model.selectedMotor);
+  };
+
   $scope.extendSpecific = function () {
     console.log("extendSpecific: %d", $scope.model.selectedMotor);
     socket.emit("extend-specific", $scope.model.selectedMotor);
   };
+
+  $scope.home = function () {
+    socket.emit("home");
+  };
+
+  $scope.stop = function () {
+    socket.emit("stop");
+  };
+
+  $scope.$watch('model.joyXY', function () {
+    move();
+  });
+
+  $scope.$watch('model.joyZ', function () {
+    move();
+  });
+
+  function move() {
+    var factor = 0.01;
+    socket.emit("move", {
+      x: factor * $scope.model.joyXY[0],
+      y: factor * $scope.model.joyXY[1],
+      z: factor * $scope.model.joyZ[0]
+    });
+  }
 
 });
