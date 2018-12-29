@@ -29,8 +29,11 @@ app.controller('CalibrateController', function ($scope, socket) {
   };
 
   $scope.extendSpecific = function () {
-    console.log("extendSpecific: %d", $scope.model.selectedMotor);
-    socket.emit("extend-specific", $scope.model.selectedMotor);
+    var delta = 0.1;
+    console.log("extendSpecific: %d", $scope.model.selectedMotor, delta);
+    socket.emit("extend-specific", {
+      id: $scope.model.selectedMotor, delta: delta
+    });
   };
 
   $scope.home = function () {
@@ -50,11 +53,11 @@ app.controller('CalibrateController', function ($scope, socket) {
   });
 
   function move() {
-    var factor = 0.01;
+    var factor = 0.1;
     socket.emit("move", {
-      x: factor * $scope.model.joyXY[0],
-      y: factor * $scope.model.joyXY[1],
-      z: factor * $scope.model.joyZ[0]
+      x: factor * $scope.model.joyXY[1],
+      y: factor * $scope.model.joyXY[0] * -1,
+      z: factor * $scope.model.joyZ[1]
     });
   }
 

@@ -5,7 +5,7 @@ var utils = require("./utils.js");
 var baudRate = 38400;
 var deviceInverter = "/dev/tty.usbserial-FT1MJ3Q6"; //"/dev/ttyUSB0";
 
-var WHEEL_RADIUS = 0.25
+var WHEEL_RADIUS = [0.273, 0.25, 0.25, 0.25]
 
 state = [0, 0, 0, 0];
 
@@ -123,7 +123,7 @@ exports.extend_specific = function (id, delta_revs) {
 };
 
 exports.set_length = function (id, length) {
-  var radius = WHEEL_RADIUS;
+  var radius = WHEEL_RADIUS[id];
   var revs = length / (2.0*Math.PI*radius);
   console.log("length", length, "radius", radius, "revs", revs);
   exports.set_revolutions(id, revs);
@@ -135,7 +135,7 @@ exports.start_reference_run = function (id) {
     id == 0 ? 12 : 11, // direction left/right
     8 // reference run
   ]);
-  var PZD = create_PZD(STW, speed(0.05), 0, 0);
+  var PZD = create_PZD(STW, speed(0.2), 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
