@@ -1,6 +1,7 @@
 
-var inverter = require("./inverter.js");
-var three = require("./three-d.js");
+var inverter = require('./inverter');
+var geom = require('./geom');
+var move = require('./move');
 
 var stdin = process.stdin;
 stdin.setRawMode(true);
@@ -19,6 +20,10 @@ stdin.on('data', function (key) {
   else if (key === 'q')
   {
     inverter.startup();
+  }
+  else if (key === 'p')
+  {
+    move.play();
   }
 });
 
@@ -53,25 +58,19 @@ io.on('connection', function (socket) {
   });
 
   socket.on("home-specific", function (id) {
-    three.home_specific(id);
+    geom.home_specific(id);
   });
 
   socket.on("home", function () {
-    three.home();
+    geom.home();
   });
 
   socket.on("stop", function () {
     inverter.startup();
   });
 
-  var last = Date.now();
-
   socket.on("move", function (delta) {
-    if (Date.now() - last > 250) {
-      last = Date.now();
-      console.log(delta);
-      three.move(delta);
-    }
+    move.set_vel(delta);
   });
 });
 

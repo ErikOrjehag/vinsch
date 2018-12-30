@@ -44,12 +44,17 @@ app.controller('CalibrateController', function ($scope, socket) {
     socket.emit("stop");
   };
 
+  var xy_init = false;
+  var z_init = false;
+
   $scope.$watch('model.joyXY', function () {
-    move();
+    if (xy_init) move();
+    xy_init = true;
   });
 
   $scope.$watch('model.joyZ', function () {
-    move();
+    if (z_init) move();
+    z_init = true;
   });
 
   function move() {

@@ -22,7 +22,7 @@ var home = { x: 0, y: 0, z: 0.5 };
 var mode = "QUAD";
 
 var SLACK = 0.96;
-var state = { x: 0, y: 0, z: 0 };
+var setpoint = { x: 0, y: 0, z: 0 };
 
 function go_to_specific(id, point, h) {
   var p = pp[mode];
@@ -58,9 +58,9 @@ exports.home_specific = function (id) {
 };
 
 exports.go_to = async function (point) {
-  state.x = point.x;
-  state.y = point.y;
-  state.z = point.z;
+  setpoint.x = point.x;
+  setpoint.y = point.y;
+  setpoint.z = point.z;
 
   var p = pp[mode];
 
@@ -72,15 +72,15 @@ exports.go_to = async function (point) {
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
   z_pos_bound = Math.min(p[0].z, p[1].z, p[2].z, p[3].z) - pad;
 
-  if (state.x > x_pos_bound) { console.warn("state.x out of positive bounds!"); state.x = x_pos_bound; }
-  if (state.x < x_neg_bound) { console.warn("state.x out of negative bounds!"); state.x = x_neg_bound; }
-  if (state.y > y_pos_bound) { console.warn("state.y out of positive bounds!"); state.y = y_pos_bound; }
-  if (state.y < y_neg_bound) { console.warn("state.y out of negative bounds!"); state.y = y_neg_bound; }
-  if (state.z > z_pos_bound) { console.warn("state.z out of positive bounds!"); state.z = z_pos_bound; }
+  if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
+  if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
+  if (setpoint.y > y_pos_bound) { console.warn("setpoint.y out of positive bounds!"); setpoint.y = y_pos_bound; }
+  if (setpoint.y < y_neg_bound) { console.warn("setpoint.y out of negative bounds!"); setpoint.y = y_neg_bound; }
+  if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
 
   for (var i = 0; i < 4; i++) {
-    go_to_specific(i, state);
-    await utils.wait(50);
+    go_to_specific(i, setpoint);
+    await utils.wait(22);
   }
 };
 
@@ -88,11 +88,11 @@ exports.home = function () {
   exports.go_to(home);
 };
 
-exports.move = async function (delta) {
+exports.increment_setpoint = async function (delta) {
   new_point = {
-    x: state.x + delta.x,
-    y: state.y + delta.y,
-    z: state.z + delta.z
+    x: setpoint.x + delta.x,
+    y: setpoint.y + delta.y,
+    z: setpoint.z + delta.z
   };
   await exports.go_to(new_point);
-};
+}
