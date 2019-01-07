@@ -112,7 +112,7 @@ exports.set_revolutions = function (id, revolutions) {
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
   ]);
-  var PZD = create_PZD(STW, 0, increments >> 16, increments & 0xffff);
+  var PZD = create_PZD(STW, speed(0.1), increments >> 16, increments & 0xffff);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
@@ -156,12 +156,12 @@ exports.finish_reference_run = async function (id) {
   // This will toggle the 9:th bit off again and
   // complete the reference run. Think of bit 9
   // as a homing push button.
-  await utils.wait(100);
+  await utils.wait(50);
   exports.start_reference_run(id);
 
   // Need to do this to break out from reference
   // run squence. Can not do multiple reference
   // runs after each other otherwise.
-  await utils.wait(100);
+  await utils.wait(50);
   exports.set_revolutions(id, 0);
 };
