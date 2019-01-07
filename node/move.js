@@ -17,18 +17,20 @@ var keyframes = [
   ,{ pos: { x: 0, y: 0, z: 0.5 }, time: 5 }
 ];*/
 
-var f = 0.5;
-
 var keyframes = [
-  { pos: { x: 0, y: 0, z: 0.5 }, time: f*5 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: f*2 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: f*4 }
-  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: f*5 }
-  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: f*4 }
-  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: f*13 }
-  ,{ pos: { x: 1.0, y: -2.0, z: 1.6 }, time: f*10 }
-  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: f*10 }
-  ,{ pos: { x: 0, y: 0, z: 0.5 }, time: f*5 }
+  { pos: { x: 0, y: 0, z: 0.5 }, time: 1 }
+  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 1 }
+  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 2 }
+  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: 1 }
+  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: 2 }
+  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: 2 }
+  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: 2.5 }
+  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: 2 }
+  ,{ pos: { x: 1.0, y: -1.5, z: 1.6 }, time: 3.0 }
+  ,{ pos: { x: 1.0, y: -1.5, z: 1.6 }, time: 2 }
+  ,{ pos: { x: 0, y: 0, z: 1.6 }, time: 3 }
+  ,{ pos: { x: 0, y: 0, z: 1.6 }, time: 2 }
+  ,{ pos: { x: 0, y: 0, z: 0.5 }, time: 2 }
 ];
 
 function time() {

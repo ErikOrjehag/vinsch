@@ -22,7 +22,7 @@ module.exports = function (io) {
     });
 
     socket.on("zero-specific", function (id) {
-      inverter.set_length(id, 0);
+      inverter.zero(id);
     });
 
     socket.on("extend-specific", function (data) {

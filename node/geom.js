@@ -24,14 +24,16 @@ var mode = "QUAD";
 var SLACK = 0.96;
 var setpoint = { x: 0, y: 0, z: 0 };
 
-function go_to_specific(id, point, h) {
+function go_to_specific(id, point, speed, h) {
   var p = pp[mode];
 
   if (mode == "TRI") {
-    if (h == undefined) h = Math.min(p[1].z, p[2].z, p[3].z) - 0.0;
+    if (h == undefined) h = Math.min(p[1].z, p[2].z, p[3].z) - 1.0;
   } else if (mode == "QUAD") {
     h = point.z;
   }
+
+  if (speed == undefined) speed = 1;
 
   var a = Math.sqrt(
     Math.pow(point.x - p[id].x, 2) +
@@ -39,25 +41,29 @@ function go_to_specific(id, point, h) {
   var b = p[id].z - h;
   var c = Math.sqrt(a*a + b*b) * SLACK;
 
+  var len = 0;
+
   if (mode == "TRI") {
     if (id == 0) {
       var l = h - point.z;
-      inverter.set_length(id, c + l);
+      len = c + 1;
     } else {
-      inverter.set_length(id, c);
+      len = c;
     }
   } else if (mode == "QUAD") {
       console.log(id)
-      inverter.set_length(id, c);
+      len = c;
   }
+
+  inverter.set_length(id, c, speed);
 
 };
 
 exports.home_specific = function (id) {
-  go_to_specific(id, home);
+  go_to_specific(id, home, 0.25);
 };
 
-exports.go_to = async function (point) {
+exports.go_to = async function (point, speed) {
   setpoint.x = point.x;
   setpoint.y = point.y;
   setpoint.z = point.z;
@@ -79,13 +85,13 @@ exports.go_to = async function (point) {
   if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
 
   for (var i = 0; i < 4; i++) {
-    go_to_specific(i, setpoint);
+    go_to_specific(i, setpoint, speed);
     await utils.wait(22);
   }
 };
 
 exports.home = function () {
-  exports.go_to(home);
+  exports.go_to(home, 0.25);
 };
 
 exports.increment_setpoint = async function (delta) {

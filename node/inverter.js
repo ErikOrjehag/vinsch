@@ -93,7 +93,7 @@ function create_PPO2(PKW, PZD) {
   return PKW.concat(PZD);
 }
 
-function speed(decimal) {
+function to_speed(decimal) {
   return 0x4000 * decimal;
 }
 
@@ -106,13 +106,14 @@ exports.startup = function () {
   sendTelegram(null, PPO);
 };
 
-exports.set_revolutions = function (id, revolutions) {
+exports.set_revolutions = function (id, revolutions, speed) {
   state[id] = revolutions;
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
   ]);
-  var PZD = create_PZD(STW, speed(0.1), increments >> 16, increments & 0xffff);
+  var s = to_speed(speed == undefined ? 1 : speed);
+  var PZD = create_PZD(STW, s, increments >> 16, increments & 0xffff);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
@@ -122,11 +123,15 @@ exports.extend_specific = function (id, delta_revs) {
   exports.set_revolutions(id, state[id] + delta_revs);
 };
 
-exports.set_length = function (id, length) {
+exports.zero = function (id) {
+  exports.set_revolutions(id, 0, 0.25);
+};
+
+exports.set_length = function (id, length, speed) {
   var radius = WHEEL_RADIUS[id];
   var revs = length / (2.0*Math.PI*radius);
   console.log("length", length, "radius", radius, "revs", revs);
-  exports.set_revolutions(id, revs);
+  exports.set_revolutions(id, revs, speed);
 };
 
 exports.start_reference_run = function (id) {
@@ -135,7 +140,7 @@ exports.start_reference_run = function (id) {
     id == 0 ? 12 : 11, // direction left/right
     8 // reference run
   ]);
-  var PZD = create_PZD(STW, speed(0.2), 0, 0);
+  var PZD = create_PZD(STW, to_speed(0.1), 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
@@ -148,7 +153,7 @@ exports.finish_reference_run = async function (id) {
     8, // reference run
     9 // hit home position
   ]);
-  var PZD = create_PZD(STW, speed(0.05), 0, 0);
+  var PZD = create_PZD(STW, to_speed(0.05), 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(id, PPO);
