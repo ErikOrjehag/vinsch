@@ -4,6 +4,7 @@ var geom = require('./geom');
 var vel = { x: 0, y: 0, z: 0 };
 var timeout = undefined;
 
+/*
 var keyframes = [
   { pos: { x: 0, y: 0, z: 0.5 }, time: 5 }
   ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 2 }
@@ -14,6 +15,20 @@ var keyframes = [
   ,{ pos: { x: 1.0, y: -2.0, z: 1.6 }, time: 10 }
   ,{ pos: { x: 0, y: 0, z: 1.5 }, time: 10 }
   ,{ pos: { x: 0, y: 0, z: 0.5 }, time: 5 }
+];*/
+
+var f = 0.5;
+
+var keyframes = [
+  { pos: { x: 0, y: 0, z: 0.5 }, time: f*5 }
+  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: f*2 }
+  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: f*4 }
+  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: f*5 }
+  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: f*4 }
+  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: f*13 }
+  ,{ pos: { x: 1.0, y: -2.0, z: 1.6 }, time: f*10 }
+  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: f*10 }
+  ,{ pos: { x: 0, y: 0, z: 0.5 }, time: f*5 }
 ];
 
 function time() {

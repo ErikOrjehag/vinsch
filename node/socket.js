@@ -2,7 +2,7 @@
 var inverter = require('./inverter');
 var geom = require('./geom');
 var move = require('./move');
-var db = require('./db');
+//var db = require('./db');
 
 module.exports = function (io) {
 
@@ -45,14 +45,14 @@ module.exports = function (io) {
       move.set_vel(delta);
     });
 
-    socket.on("create-show", function (name) {
+    /*socket.on("create-show", function (name) {
       console.log(name);
       db.create_show(name);
     });
 
     db.on_shows_changes(function (shows) {
       console.log("CALLBACK", shows);
-    });
+    });*/
   });
 
 };
