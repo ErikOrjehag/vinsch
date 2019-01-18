@@ -1,43 +1,41 @@
-
 <div class="section">
   <div class="container">
-    <a href="#!">Back</a>
-  </div>
-</div>
 
-<div class="section">
-  <div class="container">
-    <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <a href="#!">&lt; Back</a>
+
+    <div class="spacer"></div>
+
+    <div class="button" ng-click="createShow()">
+      Create new show
+    </div>
+
+      <div class="spacer"></div>
+
+    <table class="table is-bordered is-striped is-narrow is-fullwidth">
       <thead>
         <tr>
-          <td>ID</td>
           <td>Name</td>
-          <td>Modified</td>
+          <td style="width: 80px;">Created</td>
+          <td style="width: 50px; text-align: center;">#</td>
         </tr>
       </thead>
       <tbody>
-        <tr such-href="/show/1">
-          <td>1</td>
-          <td>A really awesome show</td>
-          <td>11 Dec</td>
-        </tr>
-        <tr such-href="/show/2">
-          <td>2</td>
-          <td>Another cool thing</td>
-          <td>15 Sep</td>
+        <tr ng-repeat="show in model.shows">
+          <td ng-bind="show.name"></td>
+          <td ng-bind="show.created | date : 'd MMM'"></td>
+          <td style="text-align: center;" class="tooltip-container">
+            <span ng-bind="$index + 1"></span>
+            <div class="tooltip">
+              <div class="tooltip-option" such-href="/show/1">Edit</div>
+              <div class="tooltip-option" ng-click="renameShow(show.id)">Rename</div>
+              <div class="tooltip-option" ng-click="makeDefaultShow(show.id)">Default</div>
+              <div class="tooltip-option" ng-click="copyShow(show.id)">Copy</div>
+              <div class="tooltip-option" ng-click="deleteShow(show.id)">Delete</div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="field has-addons">
-      <div class="control">
-        <input class="input" type="text" placeholder="New show name" ng-model="model.newShowName">
-      </div>
-      <div class="control">
-        <div class="button" ng-click="createShow()">
-          Create
-        </div>
-      </div>
-    </div>
   </div>
 </div>

@@ -3,14 +3,21 @@ app.controller('CalibrateController', function ($scope, socket) {
 
   $scope.model = {
     motors: ["0", "1", "2", "3"],
-    selectedMotor: 0,
-    joyXY: [0, 0],
-    joyZ: [0, 0]
+    selectedMotor: 0
   };
 
-  $scope.startReferenceRun = function () {
-    console.log("startReferenceRun: %d", $scope.model.selectedMotor);
-    socket.emit("start-reference-run", $scope.model.selectedMotor);
+  $scope.fastRefRun = function () {
+    console.log("fastRefRun: %d", $scope.model.selectedMotor);
+    socket.emit("start-reference-run", {
+      id: $scope.model.selectedMotor, speed: 0.5
+    });
+  };
+
+  $scope.slowRefRun = function () {
+    console.log("fastRefRun: %d", $scope.model.selectedMotor);
+    socket.emit("start-reference-run", {
+      id: $scope.model.selectedMotor, speed: 0.05
+    });
   };
 
   $scope.finishReferenceRun = function () {
@@ -36,34 +43,8 @@ app.controller('CalibrateController', function ($scope, socket) {
     });
   };
 
-  $scope.home = function () {
-    socket.emit("home");
-  };
-
   $scope.stop = function () {
     socket.emit("stop");
   };
-
-  var xy_init = false;
-  var z_init = false;
-
-  $scope.$watch('model.joyXY', function () {
-    if (xy_init) move();
-    xy_init = true;
-  });
-
-  $scope.$watch('model.joyZ', function () {
-    if (z_init) move();
-    z_init = true;
-  });
-
-  function move() {
-    var factor = 0.1;
-    socket.emit("move", {
-      x: factor * $scope.model.joyXY[1],
-      y: factor * $scope.model.joyXY[0] * -1,
-      z: factor * $scope.model.joyZ[1]
-    });
-  }
 
 });

@@ -43,3 +43,37 @@ body {
   overflow-y: scroll;
   height: 300px;
 }
+
+.tooltip-container:hover {
+  background: #ccc;
+}
+
+.tooltip-container:hover .tooltip {
+  display: block;
+}
+
+.tooltip {
+  display: none;
+  background: #fff;
+  position: absolute;
+  width: 200px;
+  border: 1px solid #ccc;
+  margin-left: -200px;
+  margin-top: -20px;
+  border-radius: 10px 0px 10px 10px;
+}
+
+.tooltip-option {
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.tooltip-option:hover {
+  background: #eee;
+}
+
+.spacer {
+  height: 20px;
+}

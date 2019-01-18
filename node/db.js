@@ -19,17 +19,37 @@ r.connect({ db: 'vinsch' }).then(conn => {
 
 }).catch(console.log);
 
-module.exports.create_show = function (name) {
+module.exports.create_show = function (name, callback) {
   r.table('shows').insert({
     name: name,
-    created: new Date(),
-    modified: new Date()
-  }).run(c, console.log);
+    default: false,
+    created: new Date()
+  }).run(c, function (err) {
+    if (err) callback(err);
+    else module.exports.get_shows(callback);
+  });
 };
 
+module.exports.delete_show = function (id, callback) {
+  r.table('shows').get(id).delete().run(c, function (err) {
+    if (err) callback(err);
+    else module.exports.get_shows(callback);
+  })
+}
+
+module.exports.get_shows = function (callback) {
+  r.table('shows').withFields('id', 'name', 'created').orderBy(r.desc('created')).run(c, function (err, cursor) {
+    if (err) callback(err);
+    else cursor.toArray(callback);
+  })
+}
+
 module.exports.on_shows_changes = function (callback) {
-  r.table('shows')/*.withFields('id', 'name', 'modified', 'created')*/.changes().run(c, function (err, cursor) {
+  r.table('shows').withFields('id', 'name', 'created').changes().run(c, function (err, cursor) {
     console.log("CHANGES", err, cursor);
-    cursor.each(callback);
+    cursor.each(function (err, row) {
+      console.log("err", err);
+      callback(row);
+    });
   });
 };

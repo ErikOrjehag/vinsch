@@ -17,15 +17,18 @@ var app = angular.module('app', ['ngRoute'])
   .when('/calibrate', {
     templateUrl: 'view/calibrate.html',
     controller: 'CalibrateController',
-  });
+  })
+  .when('/manual', {
+    templateUrl: 'view/manual.html',
+    controller: 'ManualController',
+  })
+  .when('/layout', {
+    templateUrl: 'view/layout.html',
+    controller: 'LayoutController',
+  })
 
   // configure html5 to get links working on jsfiddle
   //$locationProvider.html5Mode(true);
-})
-
-
-.controller('ShowsController', function ($scope) {
-
 })
 
 .controller('ShowController', function ($scope) {

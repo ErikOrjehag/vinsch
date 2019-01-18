@@ -11,28 +11,19 @@
       <select ng-model="model.selectedMotor" ng-options="motor*1 as motor for motor in model.motors"></select>
     </div>
 
-    <div class="button" ng-click="startReferenceRun()">Reference run</div>
+    <div style="height: 30px"></div>
+    <div class="button" ng-click="fastRefRun()">Fast ref run</div>
+    <div style="height: 5px"></div>
+    <div class="button" ng-click="slowRefRun()">Slow ref run</div>
+    <div style="height: 5px"></div>
     <div class="button" ng-click="finishReferenceRun()">Finish</div>
-    <div style="height: 10px"></div>
+    <div style="height: 30px"></div>
     <div class="button" ng-click="extendSpecific()">+</div>
     <div class="button" ng-click="zeroSpecific()">0</div>
     <div class="button" ng-click="homeSpecific()">H</div>
-
-  </div>
-
-  <hr>
-
-  <div class="container" style="text-align: center;">
-    <div class="button" ng-click="home()">Home</div>
+    <div style="height: 5px"></div>
     <div class="button" ng-click="stop()">Stop</div>
-    <div style="height: 50px"></div>
-    <div joystick is-1d output="model.joyZ"></div>
-    <div joystick output="model.joyXY"></div>
+
   </div>
 
-  <hr>
-
-  <div class="container">
-    Layout
-  </div>
 </div>

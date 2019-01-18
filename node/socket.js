@@ -2,7 +2,7 @@
 var inverter = require('./inverter');
 var geom = require('./geom');
 var move = require('./move');
-//var db = require('./db');
+var db = require('./db');
 
 module.exports = function (io) {
 
@@ -13,8 +13,8 @@ module.exports = function (io) {
       console.log('user disconnected');
     });
 
-    socket.on("start-reference-run", function (id) {
-      inverter.start_reference_run(id);
+    socket.on("start-reference-run", function (data) {
+      inverter.start_reference_run(data.id, data.speed);
     });
 
     socket.on("finish-reference-run", function (id) {
@@ -45,14 +45,26 @@ module.exports = function (io) {
       move.set_vel(delta);
     });
 
-    /*socket.on("create-show", function (name) {
-      console.log(name);
-      db.create_show(name);
+    socket.on("create-show", function (name) {
+      db.create_show(name, function (err, shows) {
+        if (err) console.error(err);
+        else io.emit("shows", shows);
+      });
     });
 
-    db.on_shows_changes(function (shows) {
-      console.log("CALLBACK", shows);
-    });*/
+    socket.on("delete-show", function (id) {
+      db.delete_show(id, function (err, shows) {
+        if (err) console.error(err);
+        else io.emit("shows", shows);
+      });
+    });
+
+    socket.on("get-shows", function () {
+      db.get_shows(function (err, shows) {
+        if (err) console.error(err);
+        else socket.emit("shows", shows);
+      });
+    });
   });
 
 };
