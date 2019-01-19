@@ -4,40 +4,12 @@ var geom = require('./geom');
 var vel = { x: 0, y: 0, z: 0 };
 var timeout = undefined;
 
-/*
-var keyframes = [
-  { pos: { x: 0, y: 0, z: 0.5 }, time: 5 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 2 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 4 }
-  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: 5 }
-  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: 4 }
-  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: 13 }
-  ,{ pos: { x: 1.0, y: -2.0, z: 1.6 }, time: 10 }
-  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: 10 }
-  ,{ pos: { x: 0, y: 0, z: 0.5 }, time: 5 }
-];*/
-
-var keyframes = [
-  { pos: { x: 0, y: 0, z: 0.5 }, time: 1 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 1 }
-  ,{ pos: { x: 0, y: 0, z: 0.88 }, time: 2 }
-  ,{ pos: { x: 0, y: 0, z: 1.5 }, time: 1 }
-  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: 2 }
-  ,{ pos: { x: 0, y: 1.0, z: 1.5 }, time: 2 }
-  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: 2.5 }
-  ,{ pos: { x: -1.0, y: -2.0, z: 1.0 }, time: 2 }
-  ,{ pos: { x: 1.0, y: -1.5, z: 1.6 }, time: 3.0 }
-  ,{ pos: { x: 1.0, y: -1.5, z: 1.6 }, time: 2 }
-  ,{ pos: { x: 0, y: 0, z: 1.6 }, time: 3 }
-  ,{ pos: { x: 0, y: 0, z: 1.6 }, time: 2 }
-  ,{ pos: { x: 0, y: 0, z: 0.5 }, time: 2 }
-];
-
 function time() {
   return Date.now() / 1000.0;
 }
 
-exports.play = async function () {
+exports.play = async function (show) {
+  var keyframes = show.keyframes;
   if (keyframes.length < 2) return;
   var ts = time();
   var index = 1;

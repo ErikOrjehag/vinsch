@@ -48,7 +48,7 @@ app.filter('coordinate', function() {
   return function (input) {
     var out = "";
     ["x", "y", "z"].forEach(function (dim) {
-      out += (input[dim] >= 0 ? "&nbsp;" : "") + input[dim].toFixed(1) + "&nbsp;";
+      out += (input[dim] >= 0 ? "&nbsp;" : "") + input[dim].toFixed(2) + "&nbsp;";
     });
     return out.slice(0, -1);
   };

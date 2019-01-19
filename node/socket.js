@@ -108,7 +108,11 @@ module.exports.interface = function (io) {
     });
 
     socket.on("goto", function (point) {
-      geom.go_to(point, 0.25);
+      geom.go_to(point, 0.2);
+    });
+
+    socket.on("play-show", function (show) {
+      move.play(show);
     });
   });
 

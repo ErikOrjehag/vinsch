@@ -4,7 +4,8 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
   var id = $routeParams.id;
 
   $scope.model = {
-    pos: { x: -1.0, y: -2.0, z: 1.0 }
+    pos: { x: 0, y: 0, z: 0 },
+    current: -1
   };
 
   function showDeepCopy() {
@@ -87,5 +88,10 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     console.log("goto:", index);
     socket.emit("goto", $scope.model.show.keyframes[index].pos);
   };
+
+  $scope.playShow = function (index) {
+    console.log("play!");
+    socket.emit("play-show", $scope.model.show);
+  }
 
 });

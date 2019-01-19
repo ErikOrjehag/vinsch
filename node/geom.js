@@ -65,7 +65,7 @@ exports.get_setpoint = function () {
 }
 
 exports.home_specific = function (id) {
-  go_to_specific(id, home, 0.25);
+  go_to_specific(id, home, 0.2);
 };
 
 exports.go_to = async function (point, speed) {
@@ -98,7 +98,7 @@ exports.go_to = async function (point, speed) {
 };
 
 exports.home = function () {
-  exports.go_to(home, 0.25);
+  exports.go_to(home, 0.2);
 };
 
 exports.increment_setpoint = async function (delta) {
