@@ -23,10 +23,10 @@
         <tr ng-repeat="show in model.shows">
           <td ng-bind="show.name"></td>
           <td ng-bind="show.created | date : 'd MMM'"></td>
-          <td style="text-align: center;" class="tooltip-container">
-            <span ng-bind="$index + 1"></span>
+          <td class="tooltip-container">
+            <div class="list-index" ng-bind="$index + 1" ng-class="{'default-show': show.default}"></div>
             <div class="tooltip">
-              <div class="tooltip-option" such-href="/show/1">Edit</div>
+              <div class="tooltip-option" such-href="/show/{{show.id}}">Edit</div>
               <div class="tooltip-option" ng-click="renameShow(show.id)">Rename</div>
               <div class="tooltip-option" ng-click="makeDefaultShow(show.id)">Default</div>
               <div class="tooltip-option" ng-click="copyShow(show.id)">Copy</div>

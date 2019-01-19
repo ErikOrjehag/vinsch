@@ -1,29 +1,33 @@
 <div class="section">
   <div class="container">
-    <a href="#!">Back</a>
-  </div>
-</div>
 
-<div class="section">
-  <div class="container" style="text-align: center;">
+    <a href="#!">&lt; Back</a>
 
-    <div class="select">
-      <select ng-model="model.selectedMotor" ng-options="motor*1 as motor for motor in model.motors"></select>
+    <div style="text-align: center;">
+
+      <div class="select">
+        <select ng-model="model.selectedMotor" ng-options="motor*1 as motor for motor in model.motors"></select>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="button" ng-click="fastRefRun()">Fast ref run</div>
+      <div class="small-spacer"></div>
+      <div class="button" ng-click="slowRefRun()">Slow ref run</div>
+      <div class="small-spacer"></div>
+      <div class="button" ng-click="finishReferenceRun()">Finish</div>
+
+      <div class="spacer"></div>
+
+      <div class="button" ng-click="homeSpecific()">Home</div>
+      <div class="small-spacer"></div>
+      <div class="button" ng-click="extendSpecific()">Extend</div>
+      <div class="small-spacer"></div>
+      <div class="button" ng-click="zeroSpecific()">Zero</div>
+      <div class="small-spacer"></div>
+      <div class="button" ng-click="stop()">Stop</div>
+
     </div>
 
-    <div style="height: 30px"></div>
-    <div class="button" ng-click="fastRefRun()">Fast ref run</div>
-    <div style="height: 5px"></div>
-    <div class="button" ng-click="slowRefRun()">Slow ref run</div>
-    <div style="height: 5px"></div>
-    <div class="button" ng-click="finishReferenceRun()">Finish</div>
-    <div style="height: 30px"></div>
-    <div class="button" ng-click="extendSpecific()">+</div>
-    <div class="button" ng-click="zeroSpecific()">0</div>
-    <div class="button" ng-click="homeSpecific()">H</div>
-    <div style="height: 5px"></div>
-    <div class="button" ng-click="stop()">Stop</div>
-
   </div>
-
 </div>

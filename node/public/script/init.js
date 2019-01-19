@@ -1,7 +1,7 @@
 
-var app = angular.module('app', ['ngRoute'])
+var app = angular.module('app', ['ngRoute', 'ngSanitize']);
 
-.config(function($routeProvider, $locationProvider) {
+app.config(function($routeProvider, $locationProvider) {
   $routeProvider
   .when('/', {
     templateUrl: 'view/home.html'
@@ -29,12 +29,7 @@ var app = angular.module('app', ['ngRoute'])
 
   // configure html5 to get links working on jsfiddle
   //$locationProvider.html5Mode(true);
-})
-
-.controller('ShowController', function ($scope) {
-
-})
-
+});
 
 app.directive('suchHref', ['$location', function ($location) {
   return{
@@ -48,3 +43,13 @@ app.directive('suchHref', ['$location', function ($location) {
     }
   }
 }]);
+
+app.filter('coordinate', function() {
+  return function (input) {
+    var out = "";
+    ["x", "y", "z"].forEach(function (dim) {
+      out += (input[dim] >= 0 ? "&nbsp;" : "") + input[dim].toFixed(1) + "&nbsp;";
+    });
+    return out.slice(0, -1);
+  };
+})

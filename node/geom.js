@@ -1,6 +1,7 @@
 
 var inverter = require("./inverter.js");
 var utils = require("./utils.js");
+var socket = require("./socket.js")
 
 var pp = {
   "TRI": {
@@ -59,6 +60,10 @@ function go_to_specific(id, point, speed, h) {
 
 };
 
+exports.get_setpoint = function () {
+  return setpoint;
+}
+
 exports.home_specific = function (id) {
   go_to_specific(id, home, 0.25);
 };
@@ -67,6 +72,8 @@ exports.go_to = async function (point, speed) {
   setpoint.x = point.x;
   setpoint.y = point.y;
   setpoint.z = point.z;
+
+  socket.send_position(setpoint);
 
   var p = pp[mode];
 

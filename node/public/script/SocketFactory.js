@@ -10,6 +10,9 @@ app.factory('socket', function ($rootScope) {
         });
       });
     },
+    off: function (eventName) {
+      socket.removeAllListeners(eventName);
+    },
     emit: function (eventName, data, callback) {
       socket.emit(eventName, data, function () {
         var args = arguments;

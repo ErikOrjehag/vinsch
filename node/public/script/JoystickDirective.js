@@ -12,8 +12,8 @@ app.directive('joystick', function ($document) {
 
       var container = element;
       var stick = container.children();
-      var csizex = 120;
-      var csizey = 120;
+      var csizex = 100;
+      var csizey = 100;
       var ssize = Math.floor(csizey / 2);
 
       if (onedim) {

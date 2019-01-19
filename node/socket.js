@@ -4,7 +4,11 @@ var geom = require('./geom');
 var move = require('./move');
 var db = require('./db');
 
-module.exports = function (io) {
+var io_;
+
+module.exports.interface = function (io) {
+
+  io_ = io;
 
   io.on('connection', function (socket) {
     console.log('a user connected');
@@ -59,12 +63,53 @@ module.exports = function (io) {
       });
     });
 
+    socket.on("make-default-show", function (id) {
+      db.make_default_show(id, function (err, shows) {
+        if (err) console.error(err);
+        else io.emit("shows", shows);
+      });
+    });
+
+    socket.on("copy-show", function (data) {
+      db.copy_show(data.id, data.name, function (err, shows) {
+        if (err) console.error(err);
+        else io.emit("shows", shows);
+      });
+    });
+
+    socket.on("rename-show", function (data) {
+      db.rename_show(data.id, data.name, function (err, shows) {
+        if (err) console.error(err);
+        else io.emit("shows", shows);
+      });
+    });
+
     socket.on("get-shows", function () {
       db.get_shows(function (err, shows) {
         if (err) console.error(err);
         else socket.emit("shows", shows);
       });
     });
+
+    socket.on("edit-show", function (id) {
+      db.get_show(id, function (err, show) {
+        if (err) console.error(err);
+        else socket.emit("show-"+show.id, show);
+      });
+
+      io.emit("position", geom.get_setpoint());
+    });
+
+    socket.on("set-show", function (show) {
+      db.set_show(show, function (err, show) {
+        if (err) console.error(err);
+        else socket.emit("show-"+show.id, show);
+      });
+    });
   });
 
+};
+
+module.exports.send_position = function (position) {
+  io_.emit("position", position);
 };

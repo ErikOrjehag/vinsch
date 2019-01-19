@@ -1,17 +1,16 @@
 <div class="section">
   <div class="container">
-    <a href="#!">Back</a>
+
+    <a href="#!">&lt; Back</a>
+
+    <div class="spacer"></div>
+
+    <div style="text-align: center;">
+      <div class="button" ng-click="home()">Home</div>
+      <div class="button" ng-click="stop()">Stop</div>
+      <div style="height: 70px"></div>
+      <div joy-control></div>
+    </div>
+
   </div>
-</div>
-
-<div class="section">
-
-  <div class="container" style="text-align: center;">
-    <div class="button" ng-click="home()">Home</div>
-    <div class="button" ng-click="stop()">Stop</div>
-    <div style="height: 50px"></div>
-    <div joystick is-1d output="model.joyZ"></div>
-    <div joystick output="model.joyXY"></div>
-  </div>
-
 </div>

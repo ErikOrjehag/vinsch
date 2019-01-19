@@ -8,6 +8,7 @@ app.controller('ShowsController', function ($scope, socket) {
   socket.emit('get-shows');
 
   socket.on("shows", function (shows) {
+    console.log(shows);
     $scope.model.shows = shows;
   });
 
@@ -45,6 +46,12 @@ app.controller('ShowsController', function ($scope, socket) {
   };
 
   $scope.renameShow = function (id) {
-    socket.emit("rename-show", { id: id, name: input })
+    var name = $scope.model.shows.filter(function (show) { return show.id == id })[0].name;
+    var input = window.prompt('Please enter new show name:', name);
+    if (input != "") {
+      socket.emit("rename-show", { id: id, name: input });
+    } else {
+      alert("Incorrect!");
+    }
   };
 });

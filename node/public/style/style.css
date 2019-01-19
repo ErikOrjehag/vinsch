@@ -65,7 +65,7 @@ body {
 
 .tooltip-option {
   border-bottom: 1px solid #eee;
-  padding: 10px;
+  padding: 5px 10px;
   cursor: pointer;
   border-radius: 10px;
 }
@@ -75,5 +75,39 @@ body {
 }
 
 .spacer {
-  height: 20px;
+  height: 30px;
+}
+
+.small-spacer {
+  height: 5px;
+}
+
+.list-index {
+  text-align: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.default-show {
+  color: #fff;
+  background: #3273dc;
+}
+
+.monospace {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.bar {
+  background: #eee;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0px 20px 0px rgba(0,0,0,0.4);
 }

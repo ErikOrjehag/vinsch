@@ -13,7 +13,7 @@ var io = require('socket.io')(http);
 
 app.use(express.static('public'));
 
-socket(io);
+socket.interface(io);
 
 http.listen(3000, function () {
   console.log('listening on port 3000');
