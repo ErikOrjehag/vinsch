@@ -106,6 +106,10 @@ module.exports.interface = function (io) {
         else socket.emit("show-"+show.id, show);
       });
     });
+
+    socket.on("goto", function (point) {
+      geom.go_to(point, 0.5);
+    });
   });
 
 };

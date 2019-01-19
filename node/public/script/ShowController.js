@@ -85,7 +85,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
 
   $scope.gotoKeyframe = function (index) {
     console.log("goto:", index);
-    socket.emit("goto-keyframe", { show: show, index: index });
+    socket.emit("goto", $scope.model.show.keyframes[index].pos);
   };
 
 });
