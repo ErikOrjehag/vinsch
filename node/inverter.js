@@ -4,7 +4,10 @@ var utils = require("./utils.js");
 var db = require("./db.js");
 
 var baudRate = 38400;
-var deviceInverter = "/dev/tty.usbserial-FT1MJ3Q6"; //"/dev/ttyUSB0";
+var deviceInverter = "/dev/tty.usbserial-FT1MJ3Q6";
+if (process.argv.length > 2) {
+  deviceInverter = process.argv[2];
+}
 
 var WHEEL_RADIUS = [0.273, 0.25, 0.25, 0.25]
 
