@@ -31,7 +31,6 @@ setTimeout(function () {
     if (err) console.log(err);
     else {
       if (point) {
-        console.log(point)
         setpoint.x = point.x;
         setpoint.y = point.y;
         setpoint.z = point.z;

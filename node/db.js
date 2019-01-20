@@ -81,10 +81,8 @@ exports.set_show = function (show, callback) {
 
 exports.store_setpoint = function () {
   var conf = { type: "setpoint", setpoint: geom.get_setpoint() };
-  confdb.remove({ type: "setpoint" }, {}, function (err) {
-    confdb.insert(conf, function (err) {
-      if (err) console.log(err);
-    });
+  confdb.update({ type: "setpoint" }, conf, { upsert: true }, function (err) {
+    if (err) console.log(err)
   });
 }
 

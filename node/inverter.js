@@ -127,7 +127,7 @@ exports.extend_specific = function (id, delta_revs) {
 };
 
 exports.zero = function (id) {
-  exports.set_revolutions(id, 0, 0.25);
+  exports.set_revolutions(id, 0, 0.2);
 };
 
 exports.set_length = function (id, length, speed) {
