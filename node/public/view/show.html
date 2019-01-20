@@ -21,14 +21,14 @@
       <tbody>
         <tr ng-repeat="frame in model.show.keyframes track by $index">
           <td><div ng-bind-html="frame.pos | coordinate" class="monospace"></div></td>
-          <td><div ng-bind="frame.time" class="monospace"></div></td>
+          <td><div ng-bind="frame.time" class="monospace" ng-hide="$index == 0"></div></td>
           <td class="tooltip-container">
-            <div class="list-index" ng-bind="$index + 1"></div>
+            <div class="list-index" ng-bind="$index + 1" ng-class="{ 'selected': (model.selected == $index), 'current': (model.current == $index) }"></div>
             <div class="tooltip">
               <div class="tooltip-option" ng-click="gotoKeyframe($index)">Goto</div>
               <div class="tooltip-option" ng-click="positionKeyframe($index)">Position</div>
-              <div class="tooltip-option" ng-click="timeKeyframe($index)">Time</div>
-              <div class="tooltip-option" ng-click="copyKeyframe($index)">Copy</div>
+              <div class="tooltip-option" ng-click="timeKeyframe($index)" ng-hide="$index == 0">Time</div>
+              <div class="tooltip-option" ng-click="addAfter($index)">Add after</div>
               <div class="tooltip-option" ng-click="upKeyframe($index)">Up</div>
               <div class="tooltip-option" ng-click="downKeyframe($index)">Down</div>
               <div class="tooltip-option" ng-click="deleteKeyframe($index)">Delete</div>
@@ -46,7 +46,8 @@
 <div style="height: 300px"></div>
 
 <div class="bar">
-  <div joy-control style="display: inline-block;"></div>
-  <div class="button" ng-click="playShow()">Play</div>
+  <div joy-control active="model.control" style="display: inline-block;"></div>
+  <div class="button play-stop" ng-click="playShow()" ng-show="!model.playing">Play</div>
+  <div class="button play-stop" ng-click="stopShow()" ng-show="model.playing">Stop</div>
   <div class="monospace" ng-bind-html="model.pos | coordinate"></div>
 </div>

@@ -1,7 +1,8 @@
 
 var inverter = require("./inverter.js");
 var utils = require("./utils.js");
-var socket = require("./socket.js")
+var socket = require("./socket.js");
+var db = require("./db.js");
 
 var pp = {
   "TRI": {
@@ -24,6 +25,20 @@ var mode = "QUAD";
 
 var SLACK = 0.96;
 var setpoint = { x: 0, y: 0, z: 0 };
+
+setTimeout(function () {
+  db.get_setpoint(function (err, point) {
+    if (err) console.log(err);
+    else {
+      if (point) {
+        console.log(point)
+        setpoint.x = point.x;
+        setpoint.y = point.y;
+        setpoint.z = point.z;
+      }
+    }
+  });
+}, 100);
 
 function go_to_specific(id, point, speed, h) {
   var p = pp[mode];

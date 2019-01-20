@@ -48,7 +48,7 @@ app.directive('joystick', function ($document) {
       });
 
       if (onedim) {
-        var margin = Math.floor((csizey - csizex) / 2);
+        var margin = Math.floor((ssize - csizex) / 2);
         container.css({
           marginLeft: margin + 'px',
           marginRight: margin + 'px',

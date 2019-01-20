@@ -22,7 +22,7 @@ app.controller('ShowsController', function ($scope, socket) {
   };
 
   $scope.deleteShow = function (id) {
-    var name = $scope.model.shows.filter(function (show) { return show.id == id })[0].name;
+    var name = $scope.model.shows.filter(function (show) { return show._id == id })[0].name;
     var input = window.prompt('Are you sure you want to DELETE this show?\nType "'+name+'" to proceed:');
     if (input == name) {
       socket.emit("delete-show", id);
@@ -32,7 +32,7 @@ app.controller('ShowsController', function ($scope, socket) {
   };
 
   $scope.copyShow = function (id) {
-    var name = $scope.model.shows.filter(function (show) { return show.id == id })[0].name;
+    var name = $scope.model.shows.filter(function (show) { return show._id == id })[0].name;
     var input = window.prompt('Please enter new show name:', 'Copy of: ' + name);
     if (input != "") {
       socket.emit("copy-show", { id: id, name: input });
@@ -46,7 +46,7 @@ app.controller('ShowsController', function ($scope, socket) {
   };
 
   $scope.renameShow = function (id) {
-    var name = $scope.model.shows.filter(function (show) { return show.id == id })[0].name;
+    var name = $scope.model.shows.filter(function (show) { return show._id == id })[0].name;
     var input = window.prompt('Please enter new show name:', name);
     if (input != "") {
       socket.emit("rename-show", { id: id, name: input });

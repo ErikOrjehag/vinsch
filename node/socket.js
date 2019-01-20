@@ -6,7 +6,7 @@ var db = require('./db');
 
 var io_;
 
-module.exports.interface = function (io) {
+exports.interface = function (io) {
 
   io_ = io;
 
@@ -94,16 +94,18 @@ module.exports.interface = function (io) {
     socket.on("edit-show", function (id) {
       db.get_show(id, function (err, show) {
         if (err) console.error(err);
-        else socket.emit("show-"+show.id, show);
+        else socket.emit("show-"+show._id, show);
       });
 
-      io.emit("position", geom.get_setpoint());
+      exports.send_position(geom.get_setpoint());
+      exports.send_playing(id, move.get_playing());
+      exports.send_current(id, move.get_current());
     });
 
     socket.on("set-show", function (show) {
       db.set_show(show, function (err, show) {
         if (err) console.error(err);
-        else socket.emit("show-"+show.id, show);
+        else socket.emit("show-"+show._id, show);
       });
     });
 
@@ -111,13 +113,25 @@ module.exports.interface = function (io) {
       geom.go_to(point, 0.2);
     });
 
-    socket.on("play-show", function (show) {
-      move.play(show);
+    socket.on("play-show", function (setup) {
+      move.play(setup);
+    });
+
+    socket.on("stop-show", function () {
+      move.stop();
     });
   });
 
 };
 
-module.exports.send_position = function (position) {
+exports.send_position = function (position) {
   io_.emit("position", position);
+};
+
+exports.send_current = function (id, index) {
+  io_.emit("current-"+id, index);
+};
+
+exports.send_playing = function (id, playing) {
+  io_.emit("playing-"+id, playing);
 };

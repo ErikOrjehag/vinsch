@@ -24,13 +24,13 @@
           <td ng-bind="show.name"></td>
           <td ng-bind="show.created | date : 'd MMM'"></td>
           <td class="tooltip-container">
-            <div class="list-index" ng-bind="$index + 1" ng-class="{'default-show': show.default}"></div>
+            <div class="list-index" ng-bind="$index + 1" ng-class="{'default': show.default}"></div>
             <div class="tooltip">
-              <div class="tooltip-option" such-href="/show/{{show.id}}">Edit</div>
-              <div class="tooltip-option" ng-click="renameShow(show.id)">Rename</div>
-              <div class="tooltip-option" ng-click="makeDefaultShow(show.id)">Default</div>
-              <div class="tooltip-option" ng-click="copyShow(show.id)">Copy</div>
-              <div class="tooltip-option" ng-click="deleteShow(show.id)">Delete</div>
+              <div class="tooltip-option" such-href="/show/{{show._id}}">Edit</div>
+              <div class="tooltip-option" ng-click="renameShow(show._id)">Rename</div>
+              <div class="tooltip-option" ng-click="makeDefaultShow(show._id)">Default</div>
+              <div class="tooltip-option" ng-click="copyShow(show._id)">Copy</div>
+              <div class="tooltip-option" ng-click="deleteShow(show._id)">Delete</div>
             </div>
           </td>
         </tr>

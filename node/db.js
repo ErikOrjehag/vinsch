@@ -1,92 +1,97 @@
 
-var r = require('rethinkdb');
-var c;
+var geom = require("./geom.js");
 
-r.connect({ db: 'vinsch' }).then(conn => {
-  c = conn;
+var Datastore = require('nedb');
+var showsdb = new Datastore({ filename: 'shows.db', autoload: true });
+var confdb = new Datastore({ filename: 'conf.db', autoload: true });
 
-  console.log("Connected to rethinkdb");
-
-  r.dbCreate('vinsch').run(conn).then(res => {
-    console.log('Database `vinsch` was created');
-
-    r.tableCreate('shows').run(conn, console.log);
-    r.tableCreate('layout').run(conn, console.log);
-
-  }).catch(err => {
-    console.log(err.msg);
-  });
-
-}).catch(console.log);
-
-module.exports.create_show = function (name, callback) {
-  r.table('shows').insert({
+exports.create_show = function (name, callback) {
+  showsdb.insert({
     name: name,
     default: false,
     created: new Date(),
     keyframes: []
-  }).run(c, function (err) {
+  }, function (err) {
     if (err) callback(err);
-    else module.exports.get_shows(callback);
+    else exports.get_shows(callback);
   });
 };
 
-module.exports.delete_show = function (id, callback) {
-  r.table('shows').get(id).delete().run(c, function (err) {
+exports.delete_show = function (id, callback) {
+  showsdb.remove({ _id: id }, {}, function (err) {
     if (err) callback(err);
-    else module.exports.get_shows(callback);
-  })
+    else exports.get_shows(callback);
+  });
 };
 
-module.exports.make_default_show = function (id, callback) {
-  r.table('shows').update({ default: false }).run(c, function (err) {
+exports.make_default_show = function (id, callback) {
+  showsdb.update({}, { $set: { default: false } }, { multi: true }, function (err) {
     if (err) callback(err);
-    else r.table('shows').get(id).update({ default: true }).run(c, function (err) {
+    else showsdb.update({ _id: id }, { $set: { default: true } }, {}, function (err) {
       if (err) callback(err);
-      else module.exports.get_shows(callback);
+      else exports.get_shows(callback);
     });
   });
 };
 
-module.exports.get_shows = function (callback) {
-  r.table('shows').withFields('id', 'name', 'default', 'created').orderBy(r.desc('created')).run(c, function (err, cursor) {
-    if (err) callback(err);
-    else cursor.toArray(callback);
+exports.get_shows = function (callback) {
+  showsdb.find({}).sort({ created: 1 }).exec(function (err, shows) {
+    callback(err, shows.map(function (show) { return {
+      _id: show._id,
+      name: show.name,
+      default: show.default,
+      created: show.created
+    }}));
   })
 };
 
-module.exports.copy_show = function (id, name, callback) {
-  r.table('shows').get(id).run(c, function (err, show) {
+exports.copy_show = function (id, name, callback) {
+  showsdb.findOne({ _id: id }, function (err, show) {
     if (err) callback(err);
     else {
-      delete show["id"];
+      delete show["_id"];
       show.default = false;
       show.created = new Date();
       show.name = name;
-      r.table('shows').insert(show).run(c, function (err) {
+      showsdb.insert(show, function (err) {
         if (err) callback(err);
-        else module.exports.get_shows(callback);
+        else exports.get_shows(callback);
       });
     }
   });
 };
 
-module.exports.rename_show = function (id, name, callback) {
-  r.table('shows').get(id).update({ name: name }).run(c, function (err) {
+exports.rename_show = function (id, name, callback) {
+  showsdb.update({ _id: id}, { name: name }, {}, function (err) {
     if (err) callback(err);
-    else module.exports.get_shows(callback);
+    else exports.get_shows(callback);
   });
 };
 
-module.exports.get_show = function (id, callback) {
-  r.table("shows").get(id).run(c, function (err, show) {
-    callback(err, show);
+exports.get_show = function (id, callback) {
+  showsdb.findOne({ _id: id }, callback);
+};
+
+exports.set_show = function (show, callback) {
+  showsdb.update({ _id: show._id }, show, {}, function (err) {
+    if (err) callback(err);
+    else exports.get_show(show._id, callback);
   });
 };
 
-module.exports.set_show = function (show, callback) {
-  r.table("shows").get(show.id).replace(show).run(c, function (err) {
+exports.store_setpoint = function () {
+  var conf = { type: "setpoint", setpoint: geom.get_setpoint() };
+  confdb.remove({ type: "setpoint" }, {}, function (err) {
+    confdb.insert(conf, function (err) {
+      if (err) console.log(err);
+    });
+  });
+}
+
+exports.get_setpoint = function (callback) {
+  confdb.findOne({ type: "setpoint" }, function (err, conf) {
     if (err) callback(err);
-    else module.exports.get_show(show.id, callback);
+    else if (conf) callback(null, conf.setpoint);
+    else callback();
   });
 };

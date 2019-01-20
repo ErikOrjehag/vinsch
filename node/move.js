@@ -1,22 +1,42 @@
 
 var geom = require('./geom');
+var socket = require('./socket');
 
 var vel = { x: 0, y: 0, z: 0 };
 var timeout = undefined;
+var playing = false;
+var current = -1;
 
 function time() {
   return Date.now() / 1000.0;
 }
 
-exports.play = async function (show) {
-  var keyframes = show.keyframes;
+exports.get_playing = function () {
+  return playing;
+}
+
+exports.get_current = function () {
+  return current;
+}
+
+exports.stop = function () {
+  playing = false;
+}
+
+exports.play = async function (setup) {
+  var keyframes = setup.show.keyframes;
   if (keyframes.length < 2) return;
   var ts = time();
-  var index = 1;
-  var prev = keyframes[index-1];
-  var target = keyframes[index];
+  current = setup.start + 1;
+  var prev = keyframes[current - 1];
+  var target = keyframes[current];
 
-  while (true) {
+  playing = true;
+
+  socket.send_playing(setup.show._id, playing);
+  socket.send_current(setup.show._id, current);
+
+  while (playing) {
     var elapsed = time() - ts;
     var progress = elapsed / target.time;
     var setpoint = {
@@ -28,16 +48,23 @@ exports.play = async function (show) {
 
     var overshoot = elapsed - target.time;
     if (overshoot > 0) {
-      index++;
-      if (index == keyframes.length) {
+      current++;
+      if (current == keyframes.length) {
         break;
       }
       console.log("NEW SETPOINT");
       ts = time() - overshoot;
-      prev = keyframes[index-1];
-      target = keyframes[index];
+      prev = keyframes[current - 1];
+      target = keyframes[current];
+      socket.send_current(setup.show._id, current);
     }
   }
+
+  playing = false;
+  current = -1;
+
+  socket.send_playing(setup.show._id, playing);
+  socket.send_current(setup.show._id, current);
 };
 
 exports.set_vel = function (delta) {
