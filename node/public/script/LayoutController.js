@@ -23,7 +23,7 @@ app.controller('LayoutController', function ($scope, $http) {
       $http.post('/layout', $scope.model.layout).then(function (resp) {
         console.log(resp);
         alert("Update OK!");
-      }).then(function () {
+      }, function () {
         alert("Update FAILED!");
       });
     }

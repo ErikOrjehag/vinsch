@@ -110,6 +110,9 @@ exports.get_layout = function (callback) {
   })
 }
 
-exports.set_layout = function (callback) {
-  confdb.update
+exports.set_layout = function (layout, callback) {
+  var conf = { type: "layout-quad", layout: layout };
+  confdb.update({ type: "layout-quad" }, conf, { upsert: true }, function (err) {
+    callback(err);
+  });
 };

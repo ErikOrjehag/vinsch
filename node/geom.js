@@ -5,18 +5,18 @@ var socket = require("./socket.js");
 var db = require("./db.js");
 
 var pp = {
-  "TRI": {
-    "0": { x: 1.82, y: 0.1, z: 2.37 },
-    "1": { x: 1.82, y: 0, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82, y: 2.06, z: 2.37 }
-  },
-  "QUAD": {
-    "0": { x: 1.82, y: 2.06, z: 2.37 },
-    "1": { x: 1.82, y: -2.06, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
-  }
+  "TRI": [
+    { x: 1.82, y: 0.1, z: 2.37 },
+    { x: 1.82, y: 0, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: 2.06, z: 2.37 }
+  ],
+  "QUAD": [
+    { x: 1.82, y: 2.06, z: 2.37 },
+    { x: 1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
+  ]
 };
 
 var home = { x: 0, y: 0, z: 0.5 };
@@ -33,9 +33,22 @@ setTimeout(function () {
       setpoint.x = point.x;
       setpoint.y = point.y;
       setpoint.z = point.z;
+      console.log("setpoint", setpoint);
     }
   });
+
+  db.get_layout(function (err, layout) {
+    if (err) console.log(err);
+    else exports.set_layout(layout);
+  });
 }, 100);
+
+exports.set_layout = function (layout) {
+  pp["QUAD"] = layout.inverters;
+  home = layout.home;
+  console.log("home", home);
+  console.log("inverters", pp["QUAD"]);
+};
 
 function go_to_specific(id, point, speed, h) {
   var p = pp[mode];
