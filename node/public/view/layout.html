@@ -5,7 +5,19 @@
 
     <div class="spacer"></div>
 
-    <div>Layout</div>
+    <form name="form" novalidate>
+
+      <div coordinate-input coordinate="model.layout.home" label="Home"></div>
+      <div coordinate-input coordinate="model.layout.inverters[0]" label="Inverter #0"></div>
+      <div coordinate-input coordinate="model.layout.inverters[1]" label="Inverter #1"></div>
+      <div coordinate-input coordinate="model.layout.inverters[2]" label="Inverter #2"></div>
+      <div coordinate-input coordinate="model.layout.inverters[3]" label="Inverter #3"></div>
+
+      <input type="submit" ng-click="save()" value="Save" />
+
+    </form>
+
+    <pre>{{ prettyLayout() }}</pre>
 
   </div>
 </div>

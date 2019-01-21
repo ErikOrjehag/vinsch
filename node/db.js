@@ -92,6 +92,26 @@ exports.get_setpoint = function (callback) {
   confdb.findOne({ type: "setpoint" }, function (err, conf) {
     if (err) callback(err);
     else if (conf) callback(null, conf.setpoint);
-    else callback();
+    else callback(null, { x: 0, y: 0, z: 0 });
   });
+};
+
+exports.get_layout = function (callback) {
+  confdb.findOne({ type: "layout-quad" }, function (err, conf) {
+    if (err) callback(err);
+    else if (conf) callback(null, conf.layout);
+    else callback(null, {
+      home: { x: 0, y: 0, z: 0 },
+      inverters: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 }
+      ]
+    });
+  })
+}
+
+exports.set_layout = function (callback) {
+  confdb.update
 };
