@@ -23,7 +23,7 @@ var home = { x: 0, y: 0, z: 0.5 };
 
 var mode = "QUAD";
 
-var SLACK = 0.96;
+var SLACK = 1.0;
 var setpoint = { x: 0, y: 0, z: 0 };
 
 setTimeout(function () {

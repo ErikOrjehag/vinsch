@@ -9,14 +9,14 @@ app.controller('CalibrateController', function ($scope, socket) {
   $scope.fastRefRun = function () {
     console.log("fastRefRun: %d", $scope.model.selectedMotor);
     socket.emit("start-reference-run", {
-      id: $scope.model.selectedMotor, speed: 0.5
+      id: $scope.model.selectedMotor, speed: 0.2
     });
   };
 
   $scope.slowRefRun = function () {
     console.log("fastRefRun: %d", $scope.model.selectedMotor);
     socket.emit("start-reference-run", {
-      id: $scope.model.selectedMotor, speed: 0.05
+      id: $scope.model.selectedMotor, speed: 0.02
     });
   };
 
