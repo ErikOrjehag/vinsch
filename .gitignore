@@ -1,3 +1,4 @@
 node_modules
 shows.db
 conf.db
+*.db
