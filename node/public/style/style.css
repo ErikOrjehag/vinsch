@@ -126,3 +126,7 @@ body {
   right: 0;
   box-shadow: 0 0px 20px 0px rgba(0,0,0,0.4);
 }
+
+.ng-invalid {
+  border-color: #ff3860;
+}

@@ -5,18 +5,18 @@ var socket = require("./socket.js");
 var db = require("./db.js");
 
 var pp = {
-  "TRI": {
-    "0": { x: 1.82, y: 0.1, z: 2.37 },
-    "1": { x: 1.82, y: 0, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82, y: 2.06, z: 2.37 }
-  },
-  "QUAD": {
-    "0": { x: 1.82, y: 2.06, z: 2.37 },
-    "1": { x: 1.82, y: -2.06, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
-  }
+  "TRI": [
+    { x: 1.82, y: 0.1, z: 2.37 },
+    { x: 1.82, y: 0, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: 2.06, z: 2.37 }
+  ],
+  "QUAD": [
+    { x: 1.82, y: 2.06, z: 2.37 },
+    { x: 1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
+  ]
 };
 
 var home = { x: 0, y: 0, z: 0.5 };
@@ -30,14 +30,25 @@ setTimeout(function () {
   db.get_setpoint(function (err, point) {
     if (err) console.log(err);
     else {
-      if (point) {
-        setpoint.x = point.x;
-        setpoint.y = point.y;
-        setpoint.z = point.z;
-      }
+      setpoint.x = point.x;
+      setpoint.y = point.y;
+      setpoint.z = point.z;
+      console.log("setpoint", setpoint);
     }
   });
+
+  db.get_layout(function (err, layout) {
+    if (err) console.log(err);
+    else exports.set_layout(layout);
+  });
 }, 100);
+
+exports.set_layout = function (layout) {
+  pp["QUAD"] = layout.inverters;
+  home = layout.home;
+  console.log("home", home);
+  console.log("inverters", pp["QUAD"]);
+};
 
 function go_to_specific(id, point, speed, h) {
   var p = pp[mode];
@@ -73,10 +84,6 @@ function go_to_specific(id, point, speed, h) {
   inverter.set_length(id, c, speed);
 
 };
-
-exports.get_setpoint = function () {
-  return setpoint;
-}
 
 exports.home_specific = function (id) {
   go_to_specific(id, home, 0.2);
@@ -122,4 +129,9 @@ exports.increment_setpoint = async function (delta) {
     z: setpoint.z + delta.z
   };
   await exports.go_to(new_point);
-}
+};
+
+exports.init = function () {
+  inverter.startup();
+  db.store_setpoint(setpoint);
+};
