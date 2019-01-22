@@ -26,6 +26,12 @@ var mode = "QUAD";
 var SLACK = 1.0;
 var setpoint = { x: 0, y: 0, z: 0 };
 
+var linear_active = false;
+
+function time() {
+  return Date.now() / 1000.0;
+}
+
 setTimeout(function () {
   db.get_setpoint(function (err, point) {
     if (err) console.log(err);
@@ -43,6 +49,10 @@ setTimeout(function () {
   });
 }, 100);
 
+exports.get_setpoint = function () {
+  return setpoint;
+};
+
 exports.set_layout = function (layout) {
   pp["QUAD"] = layout.inverters;
   home = layout.home;
@@ -50,7 +60,7 @@ exports.set_layout = function (layout) {
   console.log("inverters", pp["QUAD"]);
 };
 
-function go_to_specific(id, point, speed, h) {
+async function go_to_specific(id, point, speed, h) {
   var p = pp[mode];
 
   if (mode == "TRI") {
@@ -81,12 +91,13 @@ function go_to_specific(id, point, speed, h) {
       len = c;
   }
 
-  inverter.set_length(id, c, speed);
+  await inverter.set_length(id, c, speed);
 
 };
 
-exports.home_specific = function (id) {
-  go_to_specific(id, home, 0.2);
+exports.home_specific = async function (id) {
+  await exports.init();
+  await go_to_specific(id, home, 0.2);
 };
 
 exports.go_to = async function (point, speed) {
@@ -104,7 +115,7 @@ exports.go_to = async function (point, speed) {
   x_neg_bound = Math.max(p[2].x, p[3].x) + pad;
   y_pos_bound = Math.min(p[0].y, p[3].y) - pad;
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
-  z_pos_bound = Math.min(p[0].z, p[1].z, p[2].z, p[3].z) - pad;
+  z_pos_bound = 0.9*Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
 
   if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
@@ -113,25 +124,69 @@ exports.go_to = async function (point, speed) {
   if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
 
   for (var i = 0; i < 4; i++) {
-    go_to_specific(i, setpoint, speed);
-    await utils.wait(22);
+    await go_to_specific(i, setpoint, speed);
   }
 };
 
 exports.home = function () {
-  exports.go_to(home, 0.2);
+  exports.linear_to(home);
 };
 
-exports.increment_setpoint = async function (delta) {
+exports.increment_setpoint = function (delta) {
   new_point = {
     x: setpoint.x + delta.x,
     y: setpoint.y + delta.y,
     z: setpoint.z + delta.z
   };
-  await exports.go_to(new_point);
+  exports.go_to(new_point);
 };
 
-exports.init = function () {
-  inverter.startup();
+exports.stop = async function () {
+  linear_active = false;
+  await utils.wait(50);
+  await inverter.startup();
   db.store_setpoint(setpoint);
+};
+
+exports.init = async function () {
+  await inverter.startup();
+};
+
+exports.linear_to = async function (point) {
+
+  if (linear_active) return;
+  linear_active = true;
+
+  await exports.init();
+
+  var ts = time();
+  var from = setpoint;
+  var to = point;
+
+  var meters_per_second = 0.5;
+  var duration = Math.sqrt(
+    Math.pow(to.x - from.x, 2) +
+    Math.pow(to.y - from.y, 2) +
+    Math.pow(to.z - from.z, 2)
+  ) / meters_per_second;
+
+  while (linear_active) {
+    var elapsed = time() - ts;
+    var progress = elapsed / duration;
+    var carrot = {
+      x: from.x + (to.x - from.x) * progress,
+      y: from.y + (to.y - from.y) * progress,
+      z: from.z + (to.z - from.z) * progress
+    }
+    await exports.go_to(carrot);
+
+    var overshoot = elapsed - duration;
+    if (overshoot > 0) {
+      break;
+    }
+  }
+
+  await exports.stop();
+
+  linear_active = false;
 };

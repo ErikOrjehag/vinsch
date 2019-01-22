@@ -27,6 +27,8 @@ exports.play = async function (setup) {
 
   if (playing) return;
 
+  await geom.init();
+
   var keyframes = setup.show.keyframes;
   if (keyframes.length < 2) return;
 
@@ -43,12 +45,12 @@ exports.play = async function (setup) {
   while (playing) {
     var elapsed = time() - ts;
     var progress = elapsed / target.time;
-    var setpoint = {
+    var carrot = {
       x: prev.pos.x + (target.pos.x - prev.pos.x) * progress,
       y: prev.pos.y + (target.pos.y - prev.pos.y) * progress,
       z: prev.pos.z + (target.pos.z - prev.pos.z) * progress
     }
-    await geom.go_to(setpoint);
+    await geom.go_to(carrot);
 
     var overshoot = elapsed - target.time;
     if (overshoot > 0) {
@@ -56,7 +58,6 @@ exports.play = async function (setup) {
       if (current == keyframes.length) {
         break;
       }
-      console.log("NEW SETPOINT");
       ts = time() - overshoot;
       prev = keyframes[current - 1];
       target = keyframes[current];
@@ -69,6 +70,8 @@ exports.play = async function (setup) {
 
   socket.send_playing(setup.show._id, playing);
   socket.send_current(setup.show._id, current);
+
+  await geom.stop();
 };
 
 exports.play_default = function () {
@@ -84,13 +87,16 @@ exports.play_default = function () {
 exports.goto_first_keyframe = function () {
   db.get_default_show(function (err, show) {
     if (err) console.log(err);
-    else geom.go_to(show.keyframes[0].pos);
+    else geom.linear_to(show.keyframes[0].pos);
   });
 };
 
-exports.set_vel = function (delta) {
+exports.set_vel = async function (delta) {
   vel = delta;
-  if (!timeout) timeout = setTimeout(move, 1);
+  if (!timeout) {
+    await geom.init();
+    timeout = setTimeout(move, 1);
+  }
 };
 
 async function move () {
@@ -98,6 +104,7 @@ async function move () {
 
   if (vel.x == 0 && vel.y == 0 && vel.z == 0) {
     timeout = undefined;
+    await geom.stop();
   } else {
     timeout = setTimeout(move, 1);
   }

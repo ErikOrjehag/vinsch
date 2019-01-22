@@ -42,7 +42,7 @@ exports.interface = function (io) {
     });
 
     socket.on("stop", function () {
-      move.init();
+      geom.stop();
     });
 
     socket.on("move", function (delta) {
@@ -110,7 +110,7 @@ exports.interface = function (io) {
     });
 
     socket.on("goto", function (point) {
-      geom.go_to(point, 0.2);
+      geom.linear_to(point, 0.2);
     });
 
     socket.on("play-show", function (setup) {

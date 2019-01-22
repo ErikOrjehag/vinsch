@@ -130,3 +130,10 @@ body {
 .ng-invalid {
   border-color: #ff3860;
 }
+
+.warn-notify {
+  background: #ff4444;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}

@@ -53,10 +53,6 @@ function pollcb(pin) {
       move.stop();
       break;
   }
-
-  console.log("press!");
-  rpio.write(l1, rpio.HIGH);
-  rpio.sleep(1);
 }
 
 exports.set_leds("idle");

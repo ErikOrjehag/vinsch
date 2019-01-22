@@ -35,7 +35,7 @@ portInverter.on('readable', function () {
   }
 });
 
-function sendTelegram(id, PPO) {
+async function sendTelegram(id, PPO) {
 
   var STX = 0x2; // Start byte
   var LEN = PPO.length + 2; // Lenght of (ADDR + PPO.. + BCC)
@@ -61,6 +61,8 @@ function sendTelegram(id, PPO) {
   var buff = new Buffer(msg)
   console.log("sendTelegram", id, buff);
   portInverter.write(buff);
+
+  await utils.wait(22);
 }
 
 function word_from(bits) {
@@ -101,16 +103,16 @@ function to_speed(decimal) {
   return 0x4000 * decimal;
 }
 
-exports.startup = function () {
+exports.startup = async function () {
   // Go from "Switch-on disabled" -> "Ready for switch-on"
   var STW = word_from([1, 2, 10]);
   var PZD = create_PZD(STW, 0, 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
-  sendTelegram(null, PPO);
+  await sendTelegram(null, PPO);
 };
 
-exports.set_revolutions = function (id, revolutions, speed) {
+exports.set_revolutions = async function (id, revolutions, speed) {
   state[id] = revolutions;
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
@@ -120,25 +122,29 @@ exports.set_revolutions = function (id, revolutions, speed) {
   var PZD = create_PZD(STW, s, increments >> 16, increments & 0xffff);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
-  sendTelegram(id, PPO);
+  await sendTelegram(id, PPO);
 };
 
-exports.extend_specific = function (id, delta_revs) {
-  exports.set_revolutions(id, state[id] + delta_revs);
+exports.extend_specific = async function (id, delta_revs) {
+  await exports.startup();
+  await exports.set_revolutions(id, state[id] + delta_revs);
 };
 
-exports.zero = function (id) {
-  exports.set_revolutions(id, 0, 0.2);
+exports.zero = async function (id) {
+  await exports.startup();
+  await exports.set_revolutions(id, 0, 0.2);
 };
 
-exports.set_length = function (id, length, speed) {
+exports.set_length = async function (id, length, speed) {
   var radius = WHEEL_RADIUS[id];
   var revs = length / (2.0*Math.PI*radius);
   console.log("length", length, "radius", radius, "revs", revs);
-  exports.set_revolutions(id, revs, speed);
+  await exports.set_revolutions(id, revs, speed);
 };
 
-exports.start_reference_run = function (id, speed) {
+exports.start_reference_run = async function (id, speed) {
+  await exports.startup();
+
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
     id == 0 ? 12 : 11, // direction left/right
@@ -147,10 +153,13 @@ exports.start_reference_run = function (id, speed) {
   var PZD = create_PZD(STW, to_speed(speed), 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
-  sendTelegram(id, PPO);
+
+  await sendTelegram(id, PPO);
 };
 
 exports.finish_reference_run = async function (id) {
+  await exports.startup();
+
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
     id == 0 ? 12 : 11, // direction left/right
@@ -160,17 +169,17 @@ exports.finish_reference_run = async function (id) {
   var PZD = create_PZD(STW, to_speed(0.05), 0, 0);
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
-  sendTelegram(id, PPO);
+  await sendTelegram(id, PPO);
 
   // This will toggle the 9:th bit off again and
   // complete the reference run. Think of bit 9
   // as a homing push button.
-  await utils.wait(22);
-  exports.start_reference_run(id);
+  await exports.start_reference_run(id, 0);
 
   // Need to do this to break out from reference
   // run squence. Can not do multiple reference
   // runs after each other otherwise.
-  await utils.wait(22);
-  exports.set_revolutions(id, 0);
+  await exports.set_revolutions(id, 0);
+
+  await exports.startup();
 };
