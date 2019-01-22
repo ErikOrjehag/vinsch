@@ -3,7 +3,6 @@
 */
 
 var db = require('./db');
-//require('./terminal');
 var socket = require('./socket');
 var rest = require('./rest');
 
@@ -18,6 +17,7 @@ app.use(express.static('public'));
 
 socket.interface(io);
 rest.interface(app);
+require('./io');
 
 http.listen(3000, function () {
   console.log('listening on port 3000');

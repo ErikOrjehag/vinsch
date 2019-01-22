@@ -108,8 +108,6 @@ exports.startup = function () {
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   sendTelegram(null, PPO);
-
-  db.store_setpoint();
 };
 
 exports.set_revolutions = function (id, revolutions, speed) {

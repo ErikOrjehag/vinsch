@@ -85,10 +85,6 @@ function go_to_specific(id, point, speed, h) {
 
 };
 
-exports.get_setpoint = function () {
-  return setpoint;
-}
-
 exports.home_specific = function (id) {
   go_to_specific(id, home, 0.2);
 };
@@ -133,4 +129,9 @@ exports.increment_setpoint = async function (delta) {
     z: setpoint.z + delta.z
   };
   await exports.go_to(new_point);
-}
+};
+
+exports.init = function () {
+  inverter.startup();
+  db.store_setpoint(setpoint);
+};

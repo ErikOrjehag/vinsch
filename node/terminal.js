@@ -5,7 +5,6 @@
   activate commands.
 */
 
-var inverter = require('./inverter');
 var geom = require('./geom');
 var move = require('./move');
 
@@ -23,7 +22,7 @@ stdin.on('data', function (key) {
   }
   else if (key === 'q')
   {
-    inverter.startup();
+    geom.init();
   }
   else if (key === 'p')
   {

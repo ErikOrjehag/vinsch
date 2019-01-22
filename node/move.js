@@ -24,8 +24,12 @@ exports.stop = function () {
 }
 
 exports.play = async function (setup) {
+
+  if (playing) return;
+
   var keyframes = setup.show.keyframes;
   if (keyframes.length < 2) return;
+
   var ts = time();
   current = setup.start + 1;
   var prev = keyframes[current - 1];
@@ -65,6 +69,23 @@ exports.play = async function (setup) {
 
   socket.send_playing(setup.show._id, playing);
   socket.send_current(setup.show._id, current);
+};
+
+exports.play_default = function () {
+  db.get_default_show(function (err, show) {
+    if (err) console.log(err);
+    else exports.play({
+      start: 0,
+      show: show
+    });
+  });
+};
+
+exports.goto_first_keyframe = function () {
+  db.get_default_show(function (err, show) {
+    if (err) console.log(err);
+    else geom.go_to(show.keyframes[0].pos);
+  });
 };
 
 exports.set_vel = function (delta) {

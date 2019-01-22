@@ -79,8 +79,8 @@ exports.set_show = function (show, callback) {
   });
 };
 
-exports.store_setpoint = function () {
-  var conf = { type: "setpoint", setpoint: geom.get_setpoint() };
+exports.store_setpoint = function (setpoint) {
+  var conf = { type: "setpoint", setpoint: setpoint };
   confdb.update({ type: "setpoint" }, conf, { upsert: true }, function (err) {
     if (err) console.log(err)
   });

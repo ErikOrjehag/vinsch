@@ -42,7 +42,7 @@ exports.interface = function (io) {
     });
 
     socket.on("stop", function () {
-      inverter.startup();
+      move.init();
     });
 
     socket.on("move", function (delta) {
