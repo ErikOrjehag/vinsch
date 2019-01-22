@@ -12,8 +12,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var parser = require('body-parser');
 
+app.use(express.static(__dirname + '/public'));
 app.use(parser.json());
-app.use(express.static('public'));
 
 socket.interface(io);
 rest.interface(app);

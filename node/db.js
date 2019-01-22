@@ -2,8 +2,8 @@
 var geom = require("./geom.js");
 
 var Datastore = require('nedb');
-var showsdb = new Datastore({ filename: 'shows.db', autoload: true });
-var confdb = new Datastore({ filename: 'conf.db', autoload: true });
+var showsdb = new Datastore({ filename: __dirname + '/shows.db', autoload: true });
+var confdb = new Datastore({ filename: __dirname + '/conf.db', autoload: true });
 
 exports.create_show = function (name, callback) {
   showsdb.insert({
