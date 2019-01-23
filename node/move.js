@@ -1,6 +1,7 @@
 
 var geom = require('./geom');
 var socket = require('./socket');
+var db = require('./db');
 
 var vel = { x: 0, y: 0, z: 0 };
 var timeout = undefined;
@@ -94,7 +95,7 @@ exports.goto_first_keyframe = function () {
 exports.set_vel = async function (delta) {
   vel = delta;
   if (!timeout) {
-    await geom.init();
+//    await geom.init();
     timeout = setTimeout(move, 1);
   }
 };
@@ -104,7 +105,7 @@ async function move () {
 
   if (vel.x == 0 && vel.y == 0 && vel.z == 0) {
     timeout = undefined;
-    await geom.stop();
+//    await geom.stop();
   } else {
     timeout = setTimeout(move, 1);
   }

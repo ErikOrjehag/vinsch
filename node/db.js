@@ -80,6 +80,7 @@ exports.set_show = function (show, callback) {
 };
 
 exports.store_setpoint = function (setpoint) {
+  console.log("store setpoint", setpoint);
   var conf = { type: "setpoint", setpoint: setpoint };
   confdb.update({ type: "setpoint" }, conf, { upsert: true }, function (err) {
     if (err) console.log(err)
@@ -114,5 +115,14 @@ exports.set_layout = function (layout, callback) {
   var conf = { type: "layout-quad", layout: layout };
   confdb.update({ type: "layout-quad" }, conf, { upsert: true }, function (err) {
     callback(err);
+  });
+};
+
+exports.get_default_show = function (callback) {
+  showsdb.findOne({ default: true }, function (err, show) {
+    if (err) callback(err);
+    else {
+        callback(show == null ? "No default show" : null, show);
+    }
   });
 };

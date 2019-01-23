@@ -30,7 +30,7 @@ var readbuf = new Buffer([]);
 portInverter.on('readable', function () {
   readbuf = Buffer.concat([readbuf, portInverter.read()]);
   if (readbuf.length == 20) {
-    console.log('Response:', readbuf);
+    //console.log('Response:', readbuf);
     readbuf = new Buffer([]);
   }
 });
@@ -59,7 +59,7 @@ async function sendTelegram(id, PPO) {
   msg.push(BCC);
 
   var buff = new Buffer(msg)
-  console.log("sendTelegram", id, buff);
+  //console.log("sendTelegram", id, buff);
   portInverter.write(buff);
 
   await utils.wait(22);
@@ -112,6 +112,8 @@ exports.startup = async function () {
   await sendTelegram(null, PPO);
 };
 
+exports.startup();
+
 exports.set_revolutions = async function (id, revolutions, speed) {
   state[id] = revolutions;
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
@@ -126,25 +128,21 @@ exports.set_revolutions = async function (id, revolutions, speed) {
 };
 
 exports.extend_specific = async function (id, delta_revs) {
-  await exports.startup();
   await exports.set_revolutions(id, state[id] + delta_revs);
 };
 
 exports.zero = async function (id) {
-  await exports.startup();
   await exports.set_revolutions(id, 0, 0.2);
 };
 
 exports.set_length = async function (id, length, speed) {
   var radius = WHEEL_RADIUS[id];
   var revs = length / (2.0*Math.PI*radius);
-  console.log("length", length, "radius", radius, "revs", revs);
+  //console.log("length", length, "radius", radius, "revs", revs);
   await exports.set_revolutions(id, revs, speed);
 };
 
 exports.start_reference_run = async function (id, speed) {
-  await exports.startup();
-
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
     id == 0 ? 12 : 11, // direction left/right
@@ -158,8 +156,6 @@ exports.start_reference_run = async function (id, speed) {
 };
 
 exports.finish_reference_run = async function (id) {
-  await exports.startup();
-
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
     id == 0 ? 12 : 11, // direction left/right

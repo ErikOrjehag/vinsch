@@ -87,7 +87,7 @@ async function go_to_specific(id, point, speed, h) {
       len = c;
     }
   } else if (mode == "QUAD") {
-      console.log(id)
+      //console.log(id)
       len = c;
   }
 
@@ -115,7 +115,7 @@ exports.go_to = async function (point, speed) {
   x_neg_bound = Math.max(p[2].x, p[3].x) + pad;
   y_pos_bound = Math.min(p[0].y, p[3].y) - pad;
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
-  z_pos_bound = 0.9*Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
+  z_pos_bound = 0.95 * Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
 
   if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
@@ -132,13 +132,13 @@ exports.home = function () {
   exports.linear_to(home);
 };
 
-exports.increment_setpoint = function (delta) {
+exports.increment_setpoint = async function (delta) {
   new_point = {
     x: setpoint.x + delta.x,
     y: setpoint.y + delta.y,
     z: setpoint.z + delta.z
   };
-  exports.go_to(new_point);
+  await exports.go_to(new_point);
 };
 
 exports.stop = async function () {
@@ -160,29 +160,36 @@ exports.linear_to = async function (point) {
   await exports.init();
 
   var ts = time();
-  var from = setpoint;
+  var from = {
+    x: setpoint.x,
+    y: setpoint.y,
+    z: setpoint.z
+  };
   var to = point;
 
   var meters_per_second = 0.5;
-  var duration = Math.sqrt(
+  var distance = Math.sqrt(
     Math.pow(to.x - from.x, 2) +
     Math.pow(to.y - from.y, 2) +
     Math.pow(to.z - from.z, 2)
-  ) / meters_per_second;
+  );
+  var duration = distance / meters_per_second;
 
-  while (linear_active) {
-    var elapsed = time() - ts;
-    var progress = elapsed / duration;
-    var carrot = {
-      x: from.x + (to.x - from.x) * progress,
-      y: from.y + (to.y - from.y) * progress,
-      z: from.z + (to.z - from.z) * progress
-    }
-    await exports.go_to(carrot);
+  if (distance > 0.05) {
+    while (linear_active) {
+      var elapsed = time() - ts;
+      var progress = Math.min(1, elapsed / duration);
+      var carrot = {
+        x: from.x + (to.x - from.x) * progress,
+        y: from.y + (to.y - from.y) * progress,
+        z: from.z + (to.z - from.z) * progress
+      }
 
-    var overshoot = elapsed - duration;
-    if (overshoot > 0) {
-      break;
+      await exports.go_to(carrot);
+
+      if (elapsed - duration > 0.8) {
+        break;
+      }
     }
   }
 

@@ -1,59 +1,55 @@
-var rpio = require('rpio');
+/*
+
+  /boot/config.txt
+  gpio=4,10,11,17=pu
+
+*/
+
+var Gpio = require('onoff').Gpio;
 var move = require('./move');
+var geom = require('./geom');
 
-rpio.init({ mapping: 'gpio' });
+var l1 = new Gpio( 6, 'out');
+var l2 = new Gpio(13, 'out');
+var b1 = new Gpio( 4, 'in', 'rising', { debounceTime: 10 });
+var b2 = new Gpio(17, 'in', 'rising', { debounceTime: 10 });
+var b3 = new Gpio(10, 'in', 'rising', { debounceTime: 10 });
+var b4 = new Gpio(11, 'in', 'rising', { debounceTime: 10 });
 
-l1 = 6;
-l2 = 13;
-b1 = 11;
-b2 = 10;
-b3 = 17;
-b4 = 4;
-
-rpio.open(l1, rpio.OUTPUT, rpio.LOW);
-rpio.open(l2, rpio.OUTPUT, rpio.LOW);
-rpio.open(b1, rpio.INPUT);
-rpio.open(b2, rpio.INPUT);
-rpio.open(b3, rpio.INPUT);
-rpio.open(b4, rpio.INPUT);
-
-exports.set_leds = function () {
+exports.set_leds = function (state) {
   switch (state) {
     case "playing":
-      rpio.write(l1, rpio.HIGH);
-      rpio.write(l1, rpio.HIGH);
+      l1.writeSync(1);
+      l2.writeSync(1);
       break;
     case "ready":
-      rpio.write(l1, rpio.LOW);
-      rpio.write(l1, rpio.HIGH);
+      l1.writeSync(1);
+      l2.writeSync(0);
       break;
     case "idle":
-      rpio.write(l1, rpio.HIGH);
-      rpio.write(l1, rpio.LOW);
+      l1.writeSync(0);
+      l2.writeSync(1);
       break;
   }
 };
 
-function pollcb(pin) {
-  // Debounce
-  rpio.msleep(20);
-  if (rpio.read(pin)) return;
+b1.watch((err, value) => {
+  exports.set_leds("playing");
+  move.play_default();
+});
 
-  switch (pin) {
-    case b1:
-      exports.set_leds("playing");
-      move.play_default();
-      break;
-    case b2:
-      exports.set_leds("ready");
-      move.goto_first_keyframe();
-      break;
-    case b3:
-      exports.set_leds("idle");
-      move.stop();
-      break;
-  }
-}
+b2.watch((err, value) => {
+  exports.set_leds("ready");
+  move.goto_first_keyframe();
+});
 
-exports.set_leds("idle");
-rpio.poll(b1, pollcb, rpio.POLL_DOWN);
+b3.watch((err, value) => {
+  exports.set_leds("idle");
+  move.stop();
+});
+
+b4.watch((err, value) => {
+  exports.set_leds("idle");
+  geom.stop();
+});
+
