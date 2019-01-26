@@ -2,6 +2,7 @@
 var geom = require('./geom');
 var socket = require('./socket');
 var db = require('./db');
+var utils = require('./utils');
 
 var vel = { x: 0, y: 0, z: 0 };
 var timeout = undefined;
@@ -65,6 +66,8 @@ exports.play = async function (setup) {
       socket.send_current(setup.show._id, current);
     }
   }
+
+  await utils.wait(1000);
 
   playing = false;
   current = -1;

@@ -23,7 +23,7 @@ var home = { x: 0, y: 0, z: 0.5 };
 
 var mode = "QUAD";
 
-var SLACK = 1.0;
+var SLACK = 0.98;
 var setpoint = { x: 0, y: 0, z: 0 };
 
 var linear_active = false;
@@ -115,7 +115,7 @@ exports.go_to = async function (point, speed) {
   x_neg_bound = Math.max(p[2].x, p[3].x) + pad;
   y_pos_bound = Math.min(p[0].y, p[3].y) - pad;
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
-  z_pos_bound = 0.95 * Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
+  z_pos_bound = 1.0 * Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
 
   if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
