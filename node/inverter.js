@@ -11,8 +11,6 @@ if (process.argv.length > 2) {
 
 var WHEEL_RADIUS = [0.273, 0.25, 0.25, 0.25]
 
-state = [0, 0, 0, 0];
-
 var portInverter = new SerialPort(deviceInverter, {
   autoOpen: true,
   baudRate: baudRate,
@@ -115,7 +113,6 @@ exports.startup = async function () {
 exports.startup();
 
 exports.set_revolutions = async function (id, revolutions, speed) {
-  state[id] = revolutions;
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
@@ -125,10 +122,6 @@ exports.set_revolutions = async function (id, revolutions, speed) {
   var PKW = create_PKW(0, 0, 0);
   var PPO = create_PPO2(PKW, PZD);
   await sendTelegram(id, PPO);
-};
-
-exports.extend_specific = async function (id, delta_revs) {
-  await exports.set_revolutions(id, state[id] + delta_revs);
 };
 
 exports.zero = async function (id) {

@@ -28,11 +28,7 @@ exports.interface = function (io) {
     socket.on("zero-specific", function (id) {
       inverter.zero(id);
     });
-
-    socket.on("extend-specific", function (data) {
-      inverter.extend_specific(data.id, data.delta);
-    });
-
+    
     socket.on("home-specific", function (id) {
       geom.home_specific(id);
     });
