@@ -84,7 +84,7 @@ async function go_to_specific(id, point, speed, h) {
   if (mode == "TRI") {
     if (id == 0) {
       var l = h - point.z;
-      len = c + 1;
+      len = c + l;
     } else {
       len = c;
     }
@@ -92,6 +92,8 @@ async function go_to_specific(id, point, speed, h) {
       //console.log(id)
       len = c;
   }
+
+  //console.log("id", id, "a", a, "b", b, "c", c, "p[id].z", p[id].z, "h", h);
 
   await inverter.set_length(id, c, speed);
 
@@ -123,7 +125,7 @@ exports.go_to = async function (point, speed) {
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
   if (setpoint.y > y_pos_bound) { console.warn("setpoint.y out of positive bounds!"); setpoint.y = y_pos_bound; }
   if (setpoint.y < y_neg_bound) { console.warn("setpoint.y out of negative bounds!"); setpoint.y = y_neg_bound; }
-  if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
+  //if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
 
   for (var i = 0; i < 4; i++) {
     await go_to_specific(i, setpoint, speed);

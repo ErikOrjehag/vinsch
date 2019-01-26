@@ -33,6 +33,8 @@ exports.set_leds = function (state) {
   }
 };
 
+exports.set_leds("idle");
+
 b1.watch((err, value) => {
   exports.set_leds("playing");
   move.play_default();

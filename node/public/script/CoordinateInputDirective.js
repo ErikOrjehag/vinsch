@@ -10,7 +10,7 @@ app.directive('coordinateInput', function () {
     template: ''+
     '<div class="field">'+
       '<label class="label" ng-bind="label"></label>'+
-      '<div class="field is-grouped">'+
+      '<div class="field has-addons">'+
         '<div class="control">'+
           '<input class="input" type="number" placeholder="x" ng-model="coordinate.x" required=""/>'+
         '</div>'+
