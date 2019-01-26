@@ -48,12 +48,8 @@ body {
   background: #ccc;
 }
 
-.tooltip-container:hover .tooltip {
-  display: block;
-}
-
 .tooltip {
-  display: none;
+  display: block;
   background: #fff;
   position: absolute;
   width: 200px;
@@ -61,6 +57,14 @@ body {
   margin-left: -200px;
   margin-top: -20px;
   border-radius: 10px 0px 10px 10px;
+}
+
+.tooltip-hover:hover .tooltip {
+  display: block;
+}
+
+.tooltip-hover .tooltip {
+  display: none;
 }
 
 .tooltip-option {
@@ -108,8 +112,8 @@ body {
 
 .monospace {
   font-family: "Courier New", Courier, monospace;
-  font-size: 14px;
-  margin-top: 3px;
+  font-size: 13px;
+  margin-top: 5px;
 }
 
 .play-stop {
@@ -125,4 +129,15 @@ body {
   left: 0;
   right: 0;
   box-shadow: 0 0px 20px 0px rgba(0,0,0,0.4);
+}
+
+.ng-invalid {
+  border-color: #ff3860;
+}
+
+.warn-notify {
+  background: #ff4444;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
 }

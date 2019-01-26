@@ -35,16 +35,12 @@ app.controller('CalibrateController', function ($scope, socket) {
     socket.emit("zero-specific", $scope.model.selectedMotor);
   };
 
-  $scope.extendSpecific = function () {
-    var delta = 0.1;
-    console.log("extendSpecific: %d", $scope.model.selectedMotor, delta);
-    socket.emit("extend-specific", {
-      id: $scope.model.selectedMotor, delta: delta
-    });
-  };
-
   $scope.stop = function () {
     socket.emit("stop");
+  };
+
+  $scope.home = function () {
+    socket.emit("home");
   };
 
 });

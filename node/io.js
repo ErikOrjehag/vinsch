@@ -1,30 +1,53 @@
-var rpio = require('rpio');
-
-rpio.init({ mapping: 'gpio' });
-
-l1 = 6;
-l2 = 13;
-b1 = 11;
-b2 = 10;
-b3 = 17;
-b4 = 4;
-
-
 /*
- * Set the initial state to low.  The state is set prior to the pin
- * being actived, so is safe for devices which require a stable setup.
- */
-rpio.open(l1, rpio.OUTPUT, rpio.LOW);
-rpio.open(l2, rpio.OUTPUT, rpio.LOW);
-rpio.open(b1, rpio.INPUT);
 
-function pollcb(pin) {
-  rpio.msleep(20);
-  if (rpio.read(pin)) return;
-  console.log("press!");
-  rpio.write(l1, rpio.HIGH);
-  rpio.sleep(1);
-  rpio.write(l1, rpio.LOW);
-}
+  /boot/config.txt
+  gpio=4,10,11,17=pu
 
-rpio.poll(b1, pollcb, rpio.POLL_DOWN);
+*/
+
+var Gpio = require('onoff').Gpio;
+var move = require('./move');
+var geom = require('./geom');
+
+var l1 = new Gpio( 6, 'out');
+var l2 = new Gpio(13, 'out');
+var b1 = new Gpio( 4, 'in', 'rising', { debounceTime: 10 });
+var b2 = new Gpio(17, 'in', 'rising', { debounceTime: 10 });
+var b3 = new Gpio(10, 'in', 'rising', { debounceTime: 10 });
+var b4 = new Gpio(11, 'in', 'rising', { debounceTime: 10 });
+
+exports.set_leds = function (state) {
+  switch (state) {
+    case "playing":
+      l1.writeSync(1);
+      l2.writeSync(1);
+      break;
+    case "ready":
+      l1.writeSync(1);
+      l2.writeSync(0);
+      break;
+    case "idle":
+      l1.writeSync(0);
+      l2.writeSync(1);
+      break;
+  }
+};
+
+b1.watch((err, value) => {
+  exports.set_leds("playing");
+  move.play_default();
+});
+
+b2.watch((err, value) => {
+  exports.set_leds("ready");
+  move.goto_first_keyframe();
+});
+
+b3.watch((err, value) => {
+  exports.set_leds("idle");
+  move.stop();
+});
+
+b4.watch((err, value) => {
+  // Nothing
+});

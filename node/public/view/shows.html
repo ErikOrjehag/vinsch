@@ -23,7 +23,7 @@
         <tr ng-repeat="show in model.shows">
           <td ng-bind="show.name"></td>
           <td ng-bind="show.created | date : 'd MMM'"></td>
-          <td class="tooltip-container">
+          <td class="tooltip-container tooltip-hover">
             <div class="list-index" ng-bind="$index + 1" ng-class="{'default': show.default}"></div>
             <div class="tooltip">
               <div class="tooltip-option" such-href="/show/{{show._id}}">Edit</div>

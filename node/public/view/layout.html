@@ -5,7 +5,26 @@
 
     <div class="spacer"></div>
 
-    <div>Layout</div>
+    <form name="form" novalidate>
+
+      <div coordinate-input coordinate="model.layout.home" label="Home"></div>
+      <div coordinate-input coordinate="model.layout.inverters[0]" label="Inverter #0"></div>
+      <div coordinate-input coordinate="model.layout.inverters[1]" label="Inverter #1"></div>
+      <div coordinate-input coordinate="model.layout.inverters[2]" label="Inverter #2"></div>
+      <div coordinate-input coordinate="model.layout.inverters[3]" label="Inverter #3"></div>
+
+      <div class="field">
+        <label class="label">Slack</label>
+        <div class="control">
+          <input class="input" type="number" placeholder="between 0.9 and 1.0" min="0.9" max="1.0" step="0.01" ng-model="model.layout.slack" required=""/>
+        </div>
+      </div>
+
+      <input type="submit" ng-click="save()" value="Save" />
+
+    </form>
+
+    <!--<pre>{{ prettyModel() }}</pre>-->
 
   </div>
 </div>

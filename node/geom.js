@@ -5,41 +5,64 @@ var socket = require("./socket.js");
 var db = require("./db.js");
 
 var pp = {
-  "TRI": {
-    "0": { x: 1.82, y: 0.1, z: 2.37 },
-    "1": { x: 1.82, y: 0, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82, y: 2.06, z: 2.37 }
-  },
-  "QUAD": {
-    "0": { x: 1.82, y: 2.06, z: 2.37 },
-    "1": { x: 1.82, y: -2.06, z: 2.37 },
-    "2": { x: -1.82, y: -2.06, z: 2.37 },
-    "3": { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
-  }
+  "TRI": [
+    { x: 1.82, y: 0.1, z: 2.37 },
+    { x: 1.82, y: 0, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: 2.06, z: 2.37 }
+  ],
+  "QUAD": [
+    { x: 1.82, y: 2.06, z: 2.37 },
+    { x: 1.82, y: -2.06, z: 2.37 },
+    { x: -1.82, y: -2.06, z: 2.37 },
+    { x: -1.97, y: 2.06, z: 2.37 }
+  ]
 };
 
 var home = { x: 0, y: 0, z: 0.5 };
 
 var mode = "QUAD";
 
-var SLACK = 0.96;
+var SLACK = 1.0;
 var setpoint = { x: 0, y: 0, z: 0 };
+
+var linear_active = false;
+
+function time() {
+  return Date.now() / 1000.0;
+}
 
 setTimeout(function () {
   db.get_setpoint(function (err, point) {
     if (err) console.log(err);
     else {
-      if (point) {
-        setpoint.x = point.x;
-        setpoint.y = point.y;
-        setpoint.z = point.z;
-      }
+      setpoint.x = point.x;
+      setpoint.y = point.y;
+      setpoint.z = point.z;
+      console.log("setpoint", setpoint);
     }
+  });
+
+  db.get_layout(function (err, layout) {
+    if (err) console.log(err);
+    else exports.set_layout(layout);
   });
 }, 100);
 
-function go_to_specific(id, point, speed, h) {
+exports.get_setpoint = function () {
+  return setpoint;
+};
+
+exports.set_layout = function (layout) {
+  pp["QUAD"] = layout.inverters;
+  home = layout.home;
+  SLACK = layout.slack;
+  console.log("home", home);
+  console.log("inverters", pp["QUAD"]);
+  console.log("slack", SLACK);
+};
+
+async function go_to_specific(id, point, speed, h) {
   var p = pp[mode];
 
   if (mode == "TRI") {
@@ -66,20 +89,17 @@ function go_to_specific(id, point, speed, h) {
       len = c;
     }
   } else if (mode == "QUAD") {
-      console.log(id)
+      //console.log(id)
       len = c;
   }
 
-  inverter.set_length(id, c, speed);
+  await inverter.set_length(id, c, speed);
 
 };
 
-exports.get_setpoint = function () {
-  return setpoint;
-}
-
-exports.home_specific = function (id) {
-  go_to_specific(id, home, 0.2);
+exports.home_specific = async function (id) {
+  await exports.init();
+  await go_to_specific(id, home, 0.2);
 };
 
 exports.go_to = async function (point, speed) {
@@ -97,7 +117,7 @@ exports.go_to = async function (point, speed) {
   x_neg_bound = Math.max(p[2].x, p[3].x) + pad;
   y_pos_bound = Math.min(p[0].y, p[3].y) - pad;
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
-  z_pos_bound = Math.min(p[0].z, p[1].z, p[2].z, p[3].z) - pad;
+  z_pos_bound = 0.8 * Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
 
   if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
@@ -106,13 +126,12 @@ exports.go_to = async function (point, speed) {
   if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
 
   for (var i = 0; i < 4; i++) {
-    go_to_specific(i, setpoint, speed);
-    await utils.wait(22);
+    await go_to_specific(i, setpoint, speed);
   }
 };
 
 exports.home = function () {
-  exports.go_to(home, 0.2);
+  exports.linear_to(home);
 };
 
 exports.increment_setpoint = async function (delta) {
@@ -122,4 +141,61 @@ exports.increment_setpoint = async function (delta) {
     z: setpoint.z + delta.z
   };
   await exports.go_to(new_point);
-}
+};
+
+exports.stop = async function () {
+  linear_active = false;
+  await utils.wait(50);
+  await inverter.startup();
+  db.store_setpoint(setpoint);
+};
+
+exports.init = async function () {
+  await inverter.startup();
+};
+
+exports.linear_to = async function (point) {
+
+  if (linear_active) return;
+  linear_active = true;
+
+  await exports.init();
+
+  var ts = time();
+  var from = {
+    x: setpoint.x,
+    y: setpoint.y,
+    z: setpoint.z
+  };
+  var to = point;
+
+  var meters_per_second = 0.5;
+  var distance = Math.sqrt(
+    Math.pow(to.x - from.x, 2) +
+    Math.pow(to.y - from.y, 2) +
+    Math.pow(to.z - from.z, 2)
+  );
+  var duration = distance / meters_per_second;
+
+  if (distance > 0.05) {
+    while (linear_active) {
+      var elapsed = time() - ts;
+      var progress = Math.min(1, elapsed / duration);
+      var carrot = {
+        x: from.x + (to.x - from.x) * progress,
+        y: from.y + (to.y - from.y) * progress,
+        z: from.z + (to.z - from.z) * progress
+      }
+
+      await exports.go_to(carrot);
+
+      if (elapsed - duration > 0.8) {
+        break;
+      }
+    }
+  }
+
+  await exports.stop();
+
+  linear_active = false;
+};

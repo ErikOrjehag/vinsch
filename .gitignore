@@ -1,2 +1,4 @@
 node_modules
-datafile.db
+shows.db
+conf.db
+*.db

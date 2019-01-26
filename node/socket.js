@@ -28,11 +28,7 @@ exports.interface = function (io) {
     socket.on("zero-specific", function (id) {
       inverter.zero(id);
     });
-
-    socket.on("extend-specific", function (data) {
-      inverter.extend_specific(data.id, data.delta);
-    });
-
+    
     socket.on("home-specific", function (id) {
       geom.home_specific(id);
     });
@@ -42,7 +38,7 @@ exports.interface = function (io) {
     });
 
     socket.on("stop", function () {
-      inverter.startup();
+      geom.stop();
     });
 
     socket.on("move", function (delta) {
@@ -105,12 +101,12 @@ exports.interface = function (io) {
     socket.on("set-show", function (show) {
       db.set_show(show, function (err, show) {
         if (err) console.error(err);
-        else socket.emit("show-"+show._id, show);
+        else io.emit("show-"+show._id, show);
       });
     });
 
     socket.on("goto", function (point) {
-      geom.go_to(point, 0.2);
+      geom.linear_to(point, 0.2);
     });
 
     socket.on("play-show", function (setup) {
