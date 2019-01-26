@@ -67,12 +67,13 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     var show = showDeepCopy();
     show.keyframes[index].pos = $scope.model.pos;
     socket.emit("set-show", show);
-    if (index == $scope.model.selected) $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
   };
 
   $scope.addAfter = function (index) {
     console.log("add after:", index);
     $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
     var show = showDeepCopy();
     show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: 3 });
     socket.emit("set-show", show);
@@ -110,6 +111,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
   $scope.gotoKeyframe = function (index) {
     console.log("goto:", index);
     $scope.model.selected = index;
+    $scope.model.tooltip = -1;
     socket.emit("goto", $scope.model.show.keyframes[index].pos);
   };
 
