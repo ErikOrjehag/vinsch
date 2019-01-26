@@ -48,12 +48,8 @@ body {
   background: #ccc;
 }
 
-.tooltip-container:hover .tooltip {
-  display: block;
-}
-
 .tooltip {
-  display: none;
+  display: block;
   background: #fff;
   position: absolute;
   width: 200px;
@@ -61,6 +57,14 @@ body {
   margin-left: -200px;
   margin-top: -20px;
   border-radius: 10px 0px 10px 10px;
+}
+
+.tooltip-hover:hover .tooltip {
+  display: block;
+}
+
+.tooltip-hover .tooltip {
+  display: none;
 }
 
 .tooltip-option {
@@ -108,8 +112,8 @@ body {
 
 .monospace {
   font-family: "Courier New", Courier, monospace;
-  font-size: 14px;
-  margin-top: 3px;
+  font-size: 13px;
+  margin-top: 5px;
 }
 
 .play-stop {

@@ -105,7 +105,7 @@ exports.interface = function (io) {
     socket.on("set-show", function (show) {
       db.set_show(show, function (err, show) {
         if (err) console.error(err);
-        else socket.emit("show-"+show._id, show);
+        else io.emit("show-"+show._id, show);
       });
     });
 

@@ -15,8 +15,6 @@
     "nedb": "^1.8.0",
     "onoff": "^3.2.2",
     "packet": "0.0.7",
-    "rethinkdb": "^2.3.3",
-    "rpio": "^1.0.12",
     "serialport": "^6.1.1",
     "socket.io": "^2.1.0"
   }

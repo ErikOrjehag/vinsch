@@ -17,7 +17,10 @@ app.use(parser.json());
 
 socket.interface(io);
 rest.interface(app);
-require('./io');
+
+if (process.env.RASPBERRY) {
+  require('./io');
+}
 
 http.listen(3000, function () {
   console.log('listening on port 3000');

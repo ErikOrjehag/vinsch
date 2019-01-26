@@ -15,7 +15,7 @@ var pp = {
     { x: 1.82, y: 2.06, z: 2.37 },
     { x: 1.82, y: -2.06, z: 2.37 },
     { x: -1.82, y: -2.06, z: 2.37 },
-    { x: -1.82 - 0.15, y: 2.06, z: 2.37 }
+    { x: -1.97, y: 2.06, z: 2.37 }
   ]
 };
 
@@ -23,7 +23,7 @@ var home = { x: 0, y: 0, z: 0.5 };
 
 var mode = "QUAD";
 
-var SLACK = 0.98;
+var SLACK = 1.0;
 var setpoint = { x: 0, y: 0, z: 0 };
 
 var linear_active = false;
@@ -56,8 +56,10 @@ exports.get_setpoint = function () {
 exports.set_layout = function (layout) {
   pp["QUAD"] = layout.inverters;
   home = layout.home;
+  SLACK = layout.slack;
   console.log("home", home);
   console.log("inverters", pp["QUAD"]);
+  console.log("slack", SLACK);
 };
 
 async function go_to_specific(id, point, speed, h) {

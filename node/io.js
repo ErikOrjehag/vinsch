@@ -49,7 +49,5 @@ b3.watch((err, value) => {
 });
 
 b4.watch((err, value) => {
-  exports.set_leds("idle");
-  geom.stop();
+  // Nothing
 });
-

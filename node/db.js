@@ -62,7 +62,7 @@ exports.copy_show = function (id, name, callback) {
 };
 
 exports.rename_show = function (id, name, callback) {
-  showsdb.update({ _id: id}, { name: name }, {}, function (err) {
+  showsdb.update({ _id: id}, { $set: { name: name } }, {}, function (err) {
     if (err) callback(err);
     else exports.get_shows(callback);
   });
@@ -106,7 +106,8 @@ exports.get_layout = function (callback) {
         { x: 0, y: 0, z: 0 },
         { x: 0, y: 0, z: 0 },
         { x: 0, y: 0, z: 0 }
-      ]
+      ],
+      slack: 1.0
     });
   })
 }

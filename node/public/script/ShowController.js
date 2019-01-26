@@ -8,7 +8,22 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     selected: -1,
     current: -1,
     playing: false,
-    control: false
+    control: false,
+    tooltip: -1
+  };
+
+  $scope.prettyModel = function () {
+    return JSON.stringify($scope.model, null, 2);
+  };
+
+  $scope.onTooltip = function (index) {
+    console.log(index);
+    $scope.model.tooltip = index;
+  };
+
+  $scope.offTooltip = function () {
+    console.log("off");
+    $scope.model.tooltip = -1;
   };
 
   function showDeepCopy() {
@@ -47,13 +62,6 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     $scope.stopShow();
   });
 
-  $scope.addKeyframe = function () {
-    console.log("add");
-    var show = showDeepCopy();
-    show.keyframes.push({ pos: $scope.model.pos, time: 5 })
-    socket.emit("set-show", show);
-  };
-
   $scope.positionKeyframe = function (index) {
     console.log("position:", index);
     var show = showDeepCopy();
@@ -62,64 +70,53 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     if (index == $scope.model.selected) $scope.model.selected = -1;
   };
 
-  $scope.timeKeyframe = function (index) {
-    console.log("time:", index);
-    var input = parseFloat(window.prompt('Please enter time:'));
-    if (!isNaN(input)) {
-      var show = showDeepCopy();
-      show.keyframes[index].time = input;
-      socket.emit("set-show", show);
-    } else {
-      alert("Incorrect!");
-    }
-  };
-
-  /*$scope.copyKeyframe = function (index) {
-    console.log("copy:", index);
-    var show = showDeepCopy();
-    show.keyframes.splice(index, 0, show.keyframes[index]);
-    socket.emit("set-show", show);
-  };*/
-
   $scope.addAfter = function (index) {
     console.log("add after:", index);
+    $scope.model.selected = -1;
     var show = showDeepCopy();
-    show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: 5 });
+    show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: 3 });
     socket.emit("set-show", show);
-    if (index < $scope.model.selected) $scope.model.selected += 1;
   };
 
   $scope.upKeyframe = function (index) {
     console.log("up:", index);
+    $scope.model.selected = -1;
+    $scope.model.tooltip -= 1;
     var show = showDeepCopy();
     show.keyframes.splice(index-1, 0, show.keyframes[index]);
     show.keyframes.splice(index+1, 1);
     socket.emit("set-show", show);
-    if (index == $scope.model.selected+1) $scope.model.selected += 1;
   };
 
   $scope.downKeyframe = function (index) {
     console.log("down:", index);
+    $scope.model.selected = -1;
+    $scope.model.tooltip += 1;
     var show = showDeepCopy();
     show.keyframes.splice(index+2, 0, show.keyframes[index]);
     show.keyframes.splice(index, 1);
     socket.emit("set-show", show);
-    if (index == $scope.model.selected-1) $scope.model.selected -= 1;
   };
 
   $scope.deleteKeyframe = function (index) {
     console.log("delete:", index);
+    $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
     var show = showDeepCopy();
     show.keyframes.splice(index, 1);
     socket.emit("set-show", show);
-    if (index == $scope.model.selected) $scope.model.selected = -1;
-    if (index < $scope.model.selected) $scope.model.selected -= 1;
   };
 
   $scope.gotoKeyframe = function (index) {
     console.log("goto:", index);
     $scope.model.selected = index;
     socket.emit("goto", $scope.model.show.keyframes[index].pos);
+  };
+
+  $scope.changeTime = function () {
+    if ($scope.form.$valid) {
+      socket.emit("set-show", $scope.model.show);
+    }
   };
 
   $scope.playShow = function () {

@@ -3,7 +3,8 @@ app.controller('LayoutController', function ($scope, $http) {
   $scope.model = {
     layout: {
       home: {},
-      inverters: []
+      inverters: [],
+      slack: null
     }
   };
 
@@ -14,8 +15,8 @@ app.controller('LayoutController', function ($scope, $http) {
     alert("Could not get current layout!");
   });
 
-  $scope.prettyLayout = function () {
-    return JSON.stringify($scope.model.layout, null, 2);
+  $scope.prettyModel = function () {
+    return JSON.stringify($scope.model, null, 2);
   };
 
   $scope.save = function () {
