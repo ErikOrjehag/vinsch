@@ -67,9 +67,6 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     console.log("position:", index);
     var show = showDeepCopy();
     show.keyframes[index].pos = $scope.model.pos;
-    if (index > 0) {
-      show.keyframes[index].time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
-    }
     socket.emit("set-show", show);
     $scope.model.selected = -1;
     $scope.model.tooltip = -1;
@@ -85,9 +82,6 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
         show.keyframes[index].pos.x = pos[0];
         show.keyframes[index].pos.y = pos[1];
         show.keyframes[index].pos.z = pos[2];
-        if (index > 0) {
-          show.keyframes[index].time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
-        }
         socket.emit("set-show", show);
         $scope.model.selected = -1;
         $scope.model.tooltip = -1;
