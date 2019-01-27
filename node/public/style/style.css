@@ -117,11 +117,11 @@ body {
 }
 
 .play-stop {
-  margin: 30px 0 0 10px;
+  width: 44px;
+  text-align: center;
 }
 
 .bar {
-  text-align: center;
   background: #eee;
   padding: 10px;
   position: fixed;

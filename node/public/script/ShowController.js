@@ -9,7 +9,8 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     current: -1,
     playing: false,
     control: false,
-    tooltip: -1
+    tooltip: -1,
+    speed: 0.5
   };
 
   $scope.prettyModel = function () {
@@ -62,19 +63,68 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     $scope.stopShow();
   });
 
-  $scope.positionKeyframe = function (index) {
+  $scope.updatePosition = function (index) {
     console.log("position:", index);
     var show = showDeepCopy();
     show.keyframes[index].pos = $scope.model.pos;
+    if (index > 0) {
+      show.keyframes[index].time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
+    }
     socket.emit("set-show", show);
-    if (index == $scope.model.selected) $scope.model.selected = -1;
+    $scope.model.selected = -1;
+  };
+
+  $scope.inputPosition = function (index) {
+    console.log("input position:", index);
+    var show = showDeepCopy();
+    var input = window.prompt('Enter new position in this format: "x y z"');
+    if (input != null) {
+      var pos = input.split(" ").map(function (num) { return parseFloat(num) });
+      if (pos.length == 3 && !isNaN(pos[0]) && !isNaN(pos[1]) && !isNaN(pos[2])) {
+        show.keyframes[index].pos.x = pos[0];
+        show.keyframes[index].pos.y = pos[1];
+        show.keyframes[index].pos.z = pos[2];
+        if (index > 0) {
+          show.keyframes[index].time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
+        }
+        socket.emit("set-show", show);
+        $scope.model.selected = -1;
+      } else {
+        alert("Incorrect!");
+      }
+    }
+
+  };
+
+  function calcTime(p1, p2) {
+    var dist = Math.sqrt(
+      Math.pow(p1.x - p2.x, 2) +
+      Math.pow(p1.y - p2.y, 2) +
+      Math.pow(p1.z - p2.z, 2));
+    var time = parseFloat((dist / $scope.model.speed).toFixed(1));
+    if (time == 0) time = 10;
+    return time;
+  };
+
+  $scope.updateTime = function (index) {
+    if (index < 1) return;
+    console.log("update time:", index);
+    $scope.model.selected = -1;
+    var show = showDeepCopy();
+    var time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
+    show.keyframes[index].time = time;
+    socket.emit("set-show", show);
   };
 
   $scope.addAfter = function (index) {
     console.log("add after:", index);
     $scope.model.selected = -1;
     var show = showDeepCopy();
-    show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: 3 });
+    var time = 3;
+    if (index !== -1) {
+      time = calcTime(show.keyframes[index].pos, $scope.model.pos);
+    }
+    show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: time });
     socket.emit("set-show", show);
   };
 
@@ -137,6 +187,11 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
 
   $scope.stopShow = function () {
     socket.emit("stop-show");
+  };
+
+  $scope.stop = function () {
+    $scope.model.selected = -1;
+    socket.emit("stop");
   };
 
   socket.emit('edit-show', id);
