@@ -71,7 +71,7 @@ exports.play = async function (setup) {
     }
   }
 
-  await utils.wait(1000);
+  await utils.wait(2000);
 
   playing = false;
   current = -1;
