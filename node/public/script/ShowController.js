@@ -72,6 +72,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     }
     socket.emit("set-show", show);
     $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
   };
 
   $scope.inputPosition = function (index) {
@@ -89,6 +90,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
         }
         socket.emit("set-show", show);
         $scope.model.selected = -1;
+        $scope.model.tooltip = -1;
       } else {
         alert("Incorrect!");
       }
@@ -114,11 +116,13 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     var time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
     show.keyframes[index].time = time;
     socket.emit("set-show", show);
+    $scope.model.tooltip = -1;
   };
 
   $scope.addAfter = function (index) {
     console.log("add after:", index);
     $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
     var show = showDeepCopy();
     var time = 3;
     if (index !== -1) {
@@ -160,6 +164,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
   $scope.gotoKeyframe = function (index) {
     console.log("goto:", index);
     $scope.model.selected = index;
+    $scope.model.tooltip = -1;
     socket.emit("goto", $scope.model.show.keyframes[index].pos);
   };
 

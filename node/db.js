@@ -35,7 +35,7 @@ exports.make_default_show = function (id, callback) {
 };
 
 exports.get_shows = function (callback) {
-  showsdb.find({}).sort({ created: 1 }).exec(function (err, shows) {
+  showsdb.find({}).sort({ created: -1 }).exec(function (err, shows) {
     callback(err, shows.map(function (show) { return {
       _id: show._id,
       name: show.name,

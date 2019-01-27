@@ -99,10 +99,17 @@ exports.goto_first_keyframe = function () {
   });
 };
 
+var firstTime = false;
+var stopTimeout = null;
+
 exports.set_vel = async function (delta) {
   vel = delta;
   if (!timeout) {
-    await geom.init();
+    if (firstTime) {
+      firstTime = true;
+      await geom.init();
+    }
+    if (stopTimeout) clearTimeout(stopTimeout);
     timeout = setTimeout(move, 1);
   }
 };
@@ -112,7 +119,7 @@ async function move () {
 
   if (vel.x == 0 && vel.y == 0 && vel.z == 0) {
     timeout = undefined;
-    await geom.stop();
+    stopTimeout = setTimeout(() => geom.stop(), 2000);
   } else {
     timeout = setTimeout(move, 1);
   }

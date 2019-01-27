@@ -131,7 +131,7 @@ exports.zero = async function (id) {
 exports.set_length = async function (id, length, speed) {
   var radius = WHEEL_RADIUS[id];
   var revs = length / (2.0*Math.PI*radius);
-  //console.log("length", length, "radius", radius, "revs", revs);
+  console.log("id", id, "length", length);
   await exports.set_revolutions(id, revs, speed);
 };
 
