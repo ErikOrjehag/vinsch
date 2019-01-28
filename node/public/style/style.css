@@ -16,35 +16,8 @@ body {
   }
 }
 
-.keyframes td:nth-child(1) {
-  width: 55px;
-  text-align: right;
-}
-
-.keyframes td:nth-child(2) {
-  text-align: center;
-}
-
-.keyframes td:nth-child(3) {
-  width: 60px;
-  text-align: right;
-}
-
-.keyframes td:nth-child(4) {
-  width: 35px;
-}
-
-.keyframes td:nth-child(4):hover, .keyframes td:nth-child(3):hover {
-  background: #eee;
-  cursor: pointer;
-}
-
-.v-scroll {
-  overflow-y: scroll;
-  height: 300px;
-}
-
-.tooltip-container:hover {
+.tooltip-container:hover,
+.tooltip-container:focus {
   background: #ccc;
 }
 
@@ -59,7 +32,8 @@ body {
   border-radius: 10px 0px 10px 10px;
 }
 
-.tooltip-hover:hover .tooltip {
+.tooltip-hover:hover .tooltip,
+.tooltip-hover:focus .tooltip {
   display: block;
 }
 
@@ -74,7 +48,8 @@ body {
   border-radius: 10px;
 }
 
-.tooltip-option:hover {
+.tooltip-option:hover,
+.tooltip-option:focus {
   background: #eee;
 }
 

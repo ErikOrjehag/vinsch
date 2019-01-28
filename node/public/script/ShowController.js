@@ -74,22 +74,24 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
 
   $scope.inputPosition = function (index) {
     console.log("input position:", index);
-    var show = showDeepCopy();
-    var input = window.prompt('Enter new position in this format: "x y z"');
-    if (input != null) {
-      var pos = input.split(" ").map(function (num) { return parseFloat(num) });
-      if (pos.length == 3 && !isNaN(pos[0]) && !isNaN(pos[1]) && !isNaN(pos[2])) {
-        show.keyframes[index].pos.x = pos[0];
-        show.keyframes[index].pos.y = pos[1];
-        show.keyframes[index].pos.z = pos[2];
-        socket.emit("set-show", show);
-        $scope.model.selected = -1;
-        $scope.model.tooltip = -1;
-      } else {
-        alert("Incorrect!");
-      }
-    }
+    $scope.model.selected = -1;
+    $scope.model.tooltip = -1;
 
+    $('<p>Enter new position in this format: \"x y z\"</p>').prompt(function (e) {
+      console.log(e.response);
+      if (e.response) {
+        var pos = (e.response + "").split(" ").map(function (num) { return parseFloat(num) });
+        if (pos.length == 3 && !isNaN(pos[0]) && !isNaN(pos[1]) && !isNaN(pos[2])) {
+          var show = showDeepCopy();
+          show.keyframes[index].pos.x = pos[0];
+          show.keyframes[index].pos.y = pos[1];
+          show.keyframes[index].pos.z = pos[2];
+          socket.emit("set-show", show);
+        } else {
+          e.preventDefault();
+        }
+      }
+    });
   };
 
   function calcTime(p1, p2) {
