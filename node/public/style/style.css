@@ -32,15 +32,6 @@ body {
   border-radius: 10px 0px 10px 10px;
 }
 
-.tooltip-hover:hover .tooltip,
-.tooltip-hover:focus .tooltip {
-  display: block;
-}
-
-.tooltip-hover .tooltip {
-  display: none;
-}
-
 .tooltip-option {
   border-bottom: 1px solid #eee;
   padding: 5px 10px;

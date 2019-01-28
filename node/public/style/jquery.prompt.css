@@ -14,9 +14,9 @@
 	height:100%;
 	margin:0;
 	padding:0;
-	filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0,startColorstr='#30000000', endColorstr='#30000000');
+	/*filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0,startColorstr='#30000000', endColorstr='#30000000');
 	background-color:transparent;
-	background-color:rgba(0,0,0,0.2);
+	background-color:rgba(0,0,0,0.2);*/
 	color:#444;
 	font-family:arial;
 	font-weight:bold;
@@ -36,10 +36,10 @@
 }
 iframe.jquery_prompt{
 	display:table;
-	filter: alpha(Opacity=20);
+	/*filter: alpha(Opacity=20);*/
 }
 .jquery_prompt ~ *:not(.jquery_prompt) {
-	-webkit-filter: blur(2px);
+	/*-webkit-filter: blur(2px);*/
 }
 
 	.jquery_prompt form{

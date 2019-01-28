@@ -13,10 +13,14 @@
 	}
 
 
-	$.fn.popup = function(message, callback, bugme ){
+	$.fn.popup = function(message, callback, bugme){
+
+		var defaultValue = "";
 
 		if(typeof(callback) === 'boolean'){
 			bugme = callback;
+		} else if (typeof(callback) === 'string') {
+			defaultValue = callback;
 		}
 
 		if(typeof(message) === 'function'){
@@ -59,7 +63,7 @@
 		// build popup
 		var $popup = $('<iframe class="jquery_prompt" allowtransparency=true frameborder="0" scrolling="auto" marginheight="0" marginwidth="0"></iframe><div class="jquery_prompt plugin"><form>'
 						+'<div class="footer">'
-						+'<input autocomplete="off" type="text" name="text" value="" style="display:none;"/>'
+						+'<input autocomplete="off" type="text" name="text" value="'+defaultValue+'" style="display:none;"/>'
 						+'<button type="reset" style="display:none;">Cancel</button>'
 						+'<button type="submit" name="submit" value="1">Ok</button>'
 						+'<br/><input name="bugme" id="bugme" type="checkbox" value="1" checked="checked" style="display:none;">'
@@ -118,7 +122,7 @@
 		return $popup;
 	};
 
-	$.fn.prompt = function(message,callback,bugme){
+	$.fn.prompt = function(message,callback,bugme,defaultValue){
 		return $(this).popup(message,callback,bugme).find("input[name=text], button").show().end();
 	};
 

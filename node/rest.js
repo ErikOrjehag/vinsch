@@ -21,4 +21,17 @@ exports.interface = function (app) {
     });
   });
 
+  app.get("/download/:id", function (req, res) {
+    console.log("download", req.params.id);
+    db.get_show(req.params.id, function (err, show) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.set({"Content-Disposition":"attachment; filename=\""+show.name+".json\""});
+        var data = JSON.stringify(show);
+        res.send(data);
+      }
+    })
+  });
 };

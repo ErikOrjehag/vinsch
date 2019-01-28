@@ -1,5 +1,5 @@
 
-app.controller('ShowController', function ($scope, socket, $routeParams) {
+app.controller('ShowController', function ($scope, socket, $routeParams, $http) {
 
   var id = $routeParams.id;
 
@@ -77,21 +77,24 @@ app.controller('ShowController', function ($scope, socket, $routeParams) {
     $scope.model.selected = -1;
     $scope.model.tooltip = -1;
 
+    var show = showDeepCopy();
+    var pos = show.keyframes[index].pos;
+    var defaultValue = pos.x + " " + pos.y + " " + pos.z;
+
     $('<p>Enter new position in this format: \"x y z\"</p>').prompt(function (e) {
-      console.log(e.response);
+      console.log("res is", e.response);
       if (e.response) {
-        var pos = (e.response + "").split(" ").map(function (num) { return parseFloat(num) });
-        if (pos.length == 3 && !isNaN(pos[0]) && !isNaN(pos[1]) && !isNaN(pos[2])) {
-          var show = showDeepCopy();
-          show.keyframes[index].pos.x = pos[0];
-          show.keyframes[index].pos.y = pos[1];
-          show.keyframes[index].pos.z = pos[2];
+        var inPos = (e.response + "").split(" ").map(function (num) { return parseFloat(num) });
+        if (inPos.length == 3 && !isNaN(inPos[0]) && !isNaN(inPos[1]) && !isNaN(inPos[2])) {
+          pos.x = inPos[0];
+          pos.y = inPos[1];
+          pos.z = inPos[2];
           socket.emit("set-show", show);
         } else {
           e.preventDefault();
         }
       }
-    });
+    }, defaultValue);
   };
 
   function calcTime(p1, p2) {
