@@ -6,6 +6,14 @@ app.config(function($routeProvider, $locationProvider) {
   .when('/', {
     templateUrl: 'view/home.html'
   })
+  .when('/compositions', {
+    templateUrl: 'view/compositions.html',
+    controller: 'CompositionsController',
+  })
+  .when('/composition/:id', {
+    templateUrl: 'view/composition.html',
+    controller: 'CompositionController',
+  })
   .when('/shows', {
     templateUrl: 'view/shows.html',
     controller: 'ShowsController',

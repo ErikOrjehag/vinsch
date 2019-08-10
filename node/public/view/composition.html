@@ -1,0 +1,76 @@
+<div class="section">
+  <div class="container">
+
+    <a href="#!/compositions">&lt; Back</a>
+
+    <div class="spacer"></div>
+
+    <div ng-bind="model.composition.name"></div>
+    <div style="font-style: italic; color: #888;">Created: <span ng-bind="model.composition.created | date : 'd MMMM yyyy'"></span></div>
+
+    <div class="spacer"></div>
+
+    <form name="form" novalidate>
+      <table class="table is-bordered is-striped is-narrow is-fullwidth">
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td>Keyframes</td>
+            <td style="width: 50px; text-align: center;">#</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="showid in model.composition.shows track by $index">
+            <td>
+              <div ng-bind="model.shows[showid]" class="monospace"></div>
+            </td>
+            <td style="text-align: right; width: 50px;">
+              5/20
+            </td>
+            <td class="tooltip-container" ng-mouseenter="onTooltip($index)" ng-mouseleave="offTooltip()">
+              <div class="list-index" ng-bind="$index + 1"></div>
+              <div class="tooltip" ng-show="model.tooltip == $index">
+                <div class="tooltip-option" ng-click="addAfter($index)">Add after</div>
+                <div class="tooltip-option" ng-click="updatePosition($index)">Position from current</div>
+                <div class="tooltip-option" ng-click="upKeyframe($index)">Move up</div>
+                <div class="tooltip-option" ng-click="downKeyframe($index)">Move down</div>
+                <div class="tooltip-option" ng-click="deleteKeyframe($index)">Delete</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+
+
+
+    <div style="margin-top: 16px;">
+
+      <div class="button" ng-click="addAfter(model.show.keyframes.length-1)">Add</div>
+    </div>
+  </div>
+</div>
+
+<!--<pre>{{ prettyModel() }}</pre>-->
+
+<div style="height: 300px"></div>
+
+<div class="bar">
+  <table style="margin: 0 auto;">
+    <tr>
+      <td>
+        <div joy-control active="model.control" style="display: inline-block;"></div>
+      </td>
+      <td style="padding-left: 10px;">
+        <div style="margin-top: 10px;">
+          <div class="button play-stop" ng-click="playerPlay()" ng-show="!model.playing">&#9654;</div>
+          <div class="button play-stop" ng-click="playerStop()" ng-show="model.playing">&#9646;&#9646;</div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="button" ng-click="stop()">Stop</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div style="text-align: center;" class="monospace">Current: <div class="monospace" style="display: inline;" ng-bind-html="model.pos | coordinate"></div></div>
+</div>

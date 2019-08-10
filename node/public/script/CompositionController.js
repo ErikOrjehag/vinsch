@@ -1,18 +1,12 @@
 
-app.controller('ShowController', function ($scope, socket, $routeParams, $http) {
+app.controller('CompositionController', function ($scope, socket, $routeParams, $http) {
 
   var id = $routeParams.id;
-  var DoNothing = function () {};
-  var OnShowRecieved = DoNothing;
 
   $scope.model = {
     pos: { x: 0, y: 0, z: 0 },
-    selected: -1,
-    current: -1,
-    playing: false,
     control: false,
     tooltip: -1,
-    speed: 0.5
   };
 
   $scope.prettyModel = function () {
@@ -29,29 +23,13 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     $scope.model.tooltip = -1;
   };
 
-  function showDeepCopy() {
-    return jQuery.extend(true, {}, $scope.model.show);
+  function compositionDeepCopy() {
+    return jQuery.extend(true, {}, $scope.model.composition);
   }
 
-  $scope.$watch('model.control', function () {
-    $scope.model.selected = -1;
-  });
-
-  socket.on('show-'+id, function (show) {
-    if (!show.keyframes) show.keyframes = [];
-    console.log("received show");
-    $scope.model.show = show;
-    OnShowRecieved();
-  });
-
-  socket.on('current-'+id, function (index) {
-    console.log('current', index);
-    $scope.model.current = index;
-  });
-
-  socket.on('playing-'+id, function (playing) {
-    console.log('playing', playing);
-    $scope.model.playing = playing;
+  socket.on('composition-'+id, function (composition) {
+    console.log("received composition");
+    $scope.model.composition = composition;
   });
 
   socket.on("position", function (position) {
@@ -206,7 +184,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     }
   };
 
-  $scope.playShow = function () {
+  $scope.playerPlay = function () {
     // Sanity check
     if ($scope.model.selected < 0) return;
     if ($scope.model.selected > $scope.model.show.keyframes.length-2) return;
@@ -214,7 +192,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
 
     console.log("play!");
 
-    socket.emit("play-show", {
+    socket.emit("player-play", {
       start: $scope.model.selected,
       shows: [ $scope.model.show ]
     });
@@ -222,8 +200,8 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     $scope.model.selected = -1;
   };
 
-  $scope.stopShow = function () {
-    socket.emit("stop-show");
+  $scope.playerStop = function () {
+    socket.emit("player-stop");
   };
 
   $scope.stop = function () {
@@ -231,6 +209,6 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     socket.emit("stop");
   };
 
-  socket.emit('edit-show', id);
+  socket.emit('edit-composition', id);
 
 });

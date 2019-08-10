@@ -79,11 +79,6 @@ app.controller('ShowsController', function ($scope, socket) {
     });
   };
 
-  $scope.makeDefaultShow = function (id) {
-    $scope.model.tooltip = -1;
-    socket.emit("make-default-show", id);
-  };
-
   $scope.renameShow = function (id) {
     $scope.model.tooltip = -1;
     var title = 'Please enter new name:';

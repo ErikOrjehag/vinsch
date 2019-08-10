@@ -1,0 +1,39 @@
+<div class="section">
+  <div class="container">
+
+    <a href="#!">&lt; Back</a>
+
+    <div class="spacer"></div>
+
+    <div class="button" ng-click="createComposition()">
+      Create new composition
+    </div>
+
+      <div class="spacer"></div>
+
+    <table class="table is-bordered is-striped is-narrow is-fullwidth">
+      <thead>
+        <tr>
+          <td>Name</td>
+          <td style="width: 80px;">Created</td>
+          <td style="width: 50px; text-align: center;">#</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="comp in model.compositions">
+          <td ng-bind="comp.name"></td>
+          <td ng-bind="comp.created | date : 'd MMM'"></td>
+          <td class="tooltip-container" ng-mouseenter="onTooltip($index)" ng-mouseleave="offTooltip()">
+            <div class="list-index" ng-bind="$index + 1" ng-class="{'default': comp.default}"></div>
+            <div class="tooltip" ng-show="model.tooltip == $index">
+              <div class="tooltip-option" such-href="/composition/{{comp._id}}">Edit</div>
+              <div class="tooltip-option" ng-click="makeDefaultComposition(comp._id)">Default</div>
+              <div class="tooltip-option" ng-click="deleteComposition(comp._id)">Delete</div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</div>

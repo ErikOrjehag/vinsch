@@ -18,6 +18,10 @@ exports.interface = function (io) {
       console.log('user disconnected');
     });
 
+    /* * * * * * * * * * * * * * * *
+              CALIBRATION
+    * * * * * * * * * * * * * * * */
+
     socket.on("start-reference-run", function (data) {
       inverter.start_reference_run(data.id, data.speed);
     });
@@ -42,9 +46,21 @@ exports.interface = function (io) {
       geom.stop();
     });
 
+    /* * * * * * * * * * * * * * * *
+                 MANUAL
+    * * * * * * * * * * * * * * * */
+
     socket.on("move", function (delta) {
       move.set_vel(delta);
     });
+
+    socket.on("goto", function (point) {
+      geom.linear_to(point, 0.2);
+    });
+
+    /* * * * * * * * * * * * * * * *
+                  SHOW
+    * * * * * * * * * * * * * * * */
 
     socket.on("create-show", function (name) {
       db.create_show(name, function (err, shows) {
@@ -55,13 +71,6 @@ exports.interface = function (io) {
 
     socket.on("delete-show", function (id) {
       db.delete_show(id, function (err, shows) {
-        if (err) console.error(err);
-        else io.emit("shows", shows);
-      });
-    });
-
-    socket.on("make-default-show", function (id) {
-      db.make_default_show(id, function (err, shows) {
         if (err) console.error(err);
         else io.emit("shows", shows);
       });
@@ -106,15 +115,58 @@ exports.interface = function (io) {
       });
     });
 
-    socket.on("goto", function (point) {
-      geom.linear_to(point, 0.2);
+    /* * * * * * * * * * * * * * * *
+             COMPOSITIONS
+    * * * * * * * * * * * * * * * */
+
+    socket.on("edit-composition", function (id) {
+      db.get_composition(id, function (err, composition) {
+        if (err) console.error(err);
+        else socket.emit("composition-"+composition._id, composition);
+      });
+
+      //exports.send_position(geom.get_setpoint());
+      //exports.send_playing(id, play.get_playing());
+      //exports.send_current(id, play.get_current());
     });
 
-    socket.on("play-show", function (setup) {
+    socket.on("create-composition", function (name) {
+      db.create_composition(name, function (err, compositions) {
+        if (err) console.error(err);
+        else io.emit("compositions", compositions);
+      });
+    });
+
+    socket.on("get-compositions", function () {
+      db.get_compositions(function (err, compositions) {
+        if (err) console.error(err);
+        else socket.emit("compositions", compositions);
+      });
+    });
+
+    socket.on("make-default-composition", function (id) {
+      db.make_default_composition(id, function (err, compositions) {
+        if (err) console.error(err);
+        else io.emit("compositions", compositions);
+      });
+    });
+
+    socket.on("delete-composition", function (id) {
+      db.delete_composition(id, function (err, compositions) {
+        if (err) console.error(err);
+        else io.emit("compositions", compositions);
+      });
+    });
+
+    /* * * * * * * * * * * * * * * *
+                 PLAYER
+    * * * * * * * * * * * * * * * */
+
+    socket.on("player-play", function (setup) {
       play.play(setup);
     });
 
-    socket.on("stop-show", function () {
+    socket.on("player-stop", function () {
       play.stop();
     });
   });
