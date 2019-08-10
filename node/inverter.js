@@ -9,6 +9,7 @@ if (process.argv.length > 2) {
   deviceInverter = process.argv[2];
 }
 
+// SPECIAL CASE: Pulley 0 has different radius than others
 var WHEEL_RADIUS = [0.273, 0.25, 0.25, 0.25]
 
 var portInverter = new SerialPort(deviceInverter, {
@@ -110,9 +111,11 @@ exports.startup = async function () {
   await sendTelegram(null, PPO);
 };
 
+// Do startup when system is turned on
 exports.startup();
 
 exports.set_revolutions = async function (id, revolutions, speed) {
+  // SPECIAL CASE: motor 0 is different direction from others...
   var increments = Math.round(revolutions * 1000) * (id == 0 ? 1 : -1);
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10 // enable
@@ -138,7 +141,7 @@ exports.set_length = async function (id, length, speed) {
 exports.start_reference_run = async function (id, speed) {
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
-    id == 0 ? 12 : 11, // direction left/right
+    id == 0 ? 12 : 11, // SPECIAL CASE: motor 0 is different direction (ccw/cw)
     8 // reference run
   ]);
   var PZD = create_PZD(STW, to_speed(speed), 0, 0);
@@ -151,7 +154,7 @@ exports.start_reference_run = async function (id, speed) {
 exports.finish_reference_run = async function (id) {
   var STW = word_from([
     0, 1, 2, 3, 4, 5, 6, 10, // enable
-    id == 0 ? 12 : 11, // direction left/right
+    id == 0 ? 12 : 11, // SPECIAL CASE: motor 0 is different direction (ccw/cw)
     8, // reference run
     9 // hit home position
   ]);
