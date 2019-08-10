@@ -2,6 +2,7 @@
 var inverter = require('./inverter');
 var geom = require('./geom');
 var move = require('./move');
+var play = require('./play');
 var db = require('./db');
 
 var io_;
@@ -28,7 +29,7 @@ exports.interface = function (io) {
     socket.on("zero-specific", function (id) {
       inverter.zero(id);
     });
-    
+
     socket.on("home-specific", function (id) {
       geom.home_specific(id);
     });
@@ -94,8 +95,8 @@ exports.interface = function (io) {
       });
 
       exports.send_position(geom.get_setpoint());
-      exports.send_playing(id, move.get_playing());
-      exports.send_current(id, move.get_current());
+      exports.send_playing(id, play.get_playing());
+      exports.send_current(id, play.get_current());
     });
 
     socket.on("set-show", function (show) {
@@ -110,11 +111,11 @@ exports.interface = function (io) {
     });
 
     socket.on("play-show", function (setup) {
-      move.play(setup);
+      play.play(setup);
     });
 
     socket.on("stop-show", function () {
-      move.stop();
+      play.stop();
     });
   });
 
