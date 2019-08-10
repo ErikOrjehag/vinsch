@@ -111,21 +111,20 @@ exports.go_to = async function (point, speed) {
 
   socket.send_position(setpoint);
 
+  /* No bound checking, request by Mattias.
   var p = pp[mode];
-
   var pad = 0.7;
-
   x_pos_bound = Math.min(p[0].x, p[1].x) - pad;
   x_neg_bound = Math.max(p[2].x, p[3].x) + pad;
   y_pos_bound = Math.min(p[0].y, p[3].y) - pad;
   y_neg_bound = Math.max(p[1].y, p[2].y) + pad;
   z_pos_bound = 0.8 * Math.min(p[0].z, p[1].z, p[2].z, p[3].z);
-
   if (setpoint.x > x_pos_bound) { console.warn("setpoint.x out of positive bounds!"); setpoint.x = x_pos_bound; }
   if (setpoint.x < x_neg_bound) { console.warn("setpoint.x out of negative bounds!"); setpoint.x = x_neg_bound; }
   if (setpoint.y > y_pos_bound) { console.warn("setpoint.y out of positive bounds!"); setpoint.y = y_pos_bound; }
   if (setpoint.y < y_neg_bound) { console.warn("setpoint.y out of negative bounds!"); setpoint.y = y_neg_bound; }
   //if (setpoint.z > z_pos_bound) { console.warn("setpoint.z out of positive bounds!"); setpoint.z = z_pos_bound; }
+  */
 
   for (var i = 0; i < 4; i++) {
     await go_to_specific(i, setpoint, speed);
