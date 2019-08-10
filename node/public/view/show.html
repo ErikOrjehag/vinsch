@@ -32,9 +32,9 @@
               <div class="tooltip" ng-show="model.tooltip == $index">
                 <div class="tooltip-option" ng-click="gotoKeyframe($index)">Goto</div>
                 <div class="tooltip-option" ng-click="addAfter($index)">Add after</div>
-                <div class="tooltip-option" ng-click="updateTime($index)" ng-hide="$index == 0">Update time</div>
-                <div class="tooltip-option" ng-click="updatePosition($index)">Update position</div>
-                <div class="tooltip-option" ng-click="inputPosition($index)">Input position</div>
+                <div class="tooltip-option" ng-click="timeFromSpeed($index)" ng-hide="$index == 0">Time from speed</div>
+                <div class="tooltip-option" ng-click="updatePosition($index)">Position from current</div>
+                <div class="tooltip-option" ng-click="editPosition($index)">Edit position</div>
                 <div class="tooltip-option" ng-click="upKeyframe($index)">Move up</div>
                 <div class="tooltip-option" ng-click="downKeyframe($index)">Move down</div>
                 <div class="tooltip-option" ng-click="deleteKeyframe($index)">Delete</div>
@@ -76,5 +76,5 @@
       </td>
     </tr>
   </table>
-  <div style="text-align: center;" class="monospace" ng-bind-html="model.pos | coordinate"></div>
+  <div style="text-align: center;" class="monospace">Current: <div class="monospace" style="display: inline;" ng-bind-html="model.pos | coordinate"></div></div>
 </div>

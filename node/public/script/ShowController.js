@@ -2,6 +2,8 @@
 app.controller('ShowController', function ($scope, socket, $routeParams, $http) {
 
   var id = $routeParams.id;
+  var DoNothing = function () {};
+  var OnShowRecieved = DoNothing;
 
   $scope.model = {
     pos: { x: 0, y: 0, z: 0 },
@@ -39,6 +41,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     if (!show.keyframes) show.keyframes = [];
     console.log("received show");
     $scope.model.show = show;
+    OnShowRecieved();
   });
 
   socket.on('current-'+id, function (index) {
@@ -72,29 +75,53 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     $scope.model.tooltip = -1;
   };
 
-  $scope.inputPosition = function (index) {
-    console.log("input position:", index);
+  $scope.editPosition = function (index, add) {
+    console.log("edit position:", index);
     $scope.model.selected = -1;
     $scope.model.tooltip = -1;
 
-    var show = showDeepCopy();
-    var pos = show.keyframes[index].pos;
-    var defaultValue = pos.x + " " + pos.y + " " + pos.z;
+    show = showDeepCopy();
 
-    $('<p>Enter new position in this format: \"x y z\"</p>').prompt(function (e) {
-      console.log("res is", e.response);
-      if (e.response) {
-        var inPos = (e.response + "").split(" ").map(function (num) { return parseFloat(num) });
+    var pos = show.keyframes[index].pos;
+    var defaultValue = (pos.x.toFixed(2) + " " +
+                        pos.y.toFixed(2) + " " +
+                        pos.z.toFixed(2));
+
+    var title = 'Enter position for #'+(index+1)+' like x y z';
+
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Ok' },
+      { name: 'next', text: 'Ok + ' + (add?'add after':'edit next') },
+    ];
+
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log("resp", resp)
+      if (resp.button.name !== 'cancel') {
+        var inPos = (resp.text + "").split(" ").map(function (num) { return parseFloat(num) });
         if (inPos.length == 3 && !isNaN(inPos[0]) && !isNaN(inPos[1]) && !isNaN(inPos[2])) {
           pos.x = inPos[0];
           pos.y = inPos[1];
           pos.z = inPos[2];
-          socket.emit("set-show", show);
-        } else {
-          e.preventDefault();
         }
+
+        if (resp.button.name === 'ok') {
+          OnShowRecieved = DoNothing;
+        } else if (resp.button.name === 'next') {
+          if (add) {
+            OnShowRecieved = function () {
+              $scope.addAfter(index);
+            };
+          } else {
+            OnShowRecieved = function () {
+              $scope.editPosition(index+1, false);
+            }
+          }
+        }
+
+        socket.emit("set-show", show);
       }
-    }, defaultValue);
+    });
   };
 
   function calcTime(p1, p2) {
@@ -107,7 +134,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     return time;
   };
 
-  $scope.updateTime = function (index) {
+  $scope.timeFromSpeed = function (index) {
     if (index < 1) return;
     console.log("update time:", index);
     $scope.model.selected = -1;
@@ -128,6 +155,11 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
       time = calcTime(show.keyframes[index].pos, $scope.model.pos);
     }
     show.keyframes.splice(index+1, 0, { pos: $scope.model.pos, time: time });
+
+    OnShowRecieved = function () {
+      $scope.editPosition(index+1, true);
+    };
+
     socket.emit("set-show", show);
   };
 

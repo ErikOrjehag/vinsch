@@ -42,7 +42,7 @@ iframe.jquery_prompt{
 	/*-webkit-filter: blur(2px);*/
 }
 
-	.jquery_prompt form{
+	.jquery_prompt .form {
 		margin:5% auto;
 		/* display:table seems to work at positioning horizontally in all but IE, however it means we can't use IE filters*/;
 		display:table;
@@ -50,7 +50,7 @@ iframe.jquery_prompt{
 		-moz-box-sizing:border-box;
 	}
 
-	.plugin form{
+	.plugin .form {
 		text-align:center;
 		background-color:white;
 		max-width: 100%;
@@ -62,16 +62,16 @@ iframe.jquery_prompt{
 		position: relative;
 		line-height:1.2em;
 	}
-	.plugin form > *,
-	.plugin form h1,
-	.plugin form .footer{
+	.plugin .form > *,
+	.plugin .form h1,
+	.plugin .form .footer{
 		padding-left:20px;
 		padding-right:20px;
 	}
-	.plugin form > :first-child{
+	.plugin .form > :first-child{
 		padding-top:20px;
 	}
-	.plugin form .footer{
+	.plugin .form .footer{
 		padding-bottom:20px;
 		position: relative;
 	}
@@ -108,7 +108,7 @@ iframe.jquery_prompt{
 /**
  * Add Gradients
  */
-	.plugin form,
+	.plugin .form,
 	.plugin button,
 	.plugin .gradient{
 		/* IE<=9 */

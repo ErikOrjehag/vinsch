@@ -6,132 +6,57 @@
 //
 ;(function($){
 
-	var ignorelist = [];
-	try{ignorelist = JSON.parse(localStorage.getItem('prompt.bugme')) || [];}catch(e){}
-	if(!ignorelist instanceof Array){
-		ignorelist = [];
-	}
-
-
-	$.fn.popup = function(message, callback, bugme){
-
-		var defaultValue = "";
-
-		if(typeof(callback) === 'boolean'){
-			bugme = callback;
-		} else if (typeof(callback) === 'string') {
-			defaultValue = callback;
-		}
-
-		if(typeof(message) === 'function'){
-			callback = message;
-			message = null;
-		}
-
-		if(typeof(message) === 'string'){
-			// wrap message
-			message = $("<p>"+message+"</p>").get(0);
-		}
-
-		message = message || this;
+	$.fn.prompt = function(title, defaultValue, buttons, callback) {
 
 		// cancel if open already, return an empty jQuery object
-		if($('.jquery_prompt').length){return $();}
-
-		// define callback
-		callback = callback || function(p){return !!p;};
-
-		// in the ignore list?
-		var hash = $(message).text();
-		if(bugme && "indexOf" in ignorelist && ignorelist.indexOf(hash)>-1){
-			callback(bugme);
+		if($('.jquery_prompt').length) {
 			return $();
 		}
 
-		// add `ESC` + `enter` listener
-		var bind = function(e){
-				if(e.which===27){
-					$popup.find('form').trigger('reset');
-				}
-				else if (e.which === 13){
-					$popup.find('form').trigger('submit');
-				}
-			};
-
-		$(document).bind('keydown', bind );
-
 		// build popup
-		var $popup = $('<iframe class="jquery_prompt" allowtransparency=true frameborder="0" scrolling="auto" marginheight="0" marginwidth="0"></iframe><div class="jquery_prompt plugin"><form>'
-						+'<div class="footer">'
-						+'<input autocomplete="off" type="text" name="text" value="'+defaultValue+'" style="display:none;"/>'
-						+'<button type="reset" style="display:none;">Cancel</button>'
-						+'<button type="submit" name="submit" value="1">Ok</button>'
-						+'<br/><input name="bugme" id="bugme" type="checkbox" value="1" checked="checked" style="display:none;">'
-						+'<label for="bugme" style="display:none;">keep asking me</label>'
-						+'</div>'
-					+'</form></div>')
-				.prependTo("body")
-				.find('form')
-				.prepend(message)
-				.submit(function(e){
+		var $popup = $(
+			'<iframe class="jquery_prompt" allowtransparency=true frameborder="0" scrolling="auto" marginheight="0" marginwidth="0">'
+		+	'</iframe>'
+		+ '<div class="jquery_prompt plugin">'
+		+ 	'<div class="form">'
+		+			'<p>'+title+'</p>'
+		+			'<div class="footer">'
+		+				'<input autocomplete="off" type="text" name="text" value="' + defaultValue + '" />'
+		+ 			buttons.map(function (button, i) { return '<button name="'+button.name+'" value="'+i+'">'+button.text+'</button>'; }).join(" ")
+		+			'</div>'
+		+		'</div>'
+		+	'</div>'
+		);
 
-					// trigger callback
-					e.response = $('button[name=submit]',this).val() == 1 ? $('input[name=text]:visible',this).val() || true : false;
+		// add `ESC` + `enter` listener
+		var bind = function(e) {
+			if (e.which === 27) { // ESC
+				$popup.find('button[name='+buttons[0].name+']').click();
+			}
+			else if (e.which === 13) { // ENTER
+				$popup.find('button[name='+buttons[buttons.length-1].name+']').click();
+			}
+		};
 
-					try{
-						callback.call(this, e);
-					}
-					catch(err){
-						e.preventDefault();
-						throw err;
-					}
+		$(document).bind('keydown', bind);
 
-					if(!e.isDefaultPrevented()){
-						// remove event listeners
-						$(document).unbind('keydown', bind);
+		$popup.prependTo("body");
 
-						// dont submit the form.
-						e.preventDefault();
-						// prevent the system from popping these messages again
-						if(!$('input[name=bugme]',this).is(':checked')){
-							ignorelist.push(hash);
-							try{localStorage.setItem('prompt.bugme',JSON.stringify(ignorelist));}catch(e){}
-						}
-						// kill this popup
-						$(this).parent().add($(this).parent().siblings('.jquery_prompt')).remove();
-					}
-					else{
-						// reinstate the submit button if it was reset
-						$('button[name=submit]', this).val('1');
-					}
-				})
-				.bind('reset', function(){
-					$('button[name=submit]', this).val(0);
-					$(this).submit();
-				})
-				.find('button[type=submit]')
-				.trigger('focus')
-				.end()
-				.end();
+		buttons.forEach(function (button, i) {
+			$popup.find('button[name='+button.name+']').click(function() {
+				var text = $popup.find('input[name=text]').val();
+				$(document).unbind('keydown', bind);
+				$popup.remove();
+				callback({
+					button: button,
+					text: text
+				});
+			});
+		});
 
-		// Let the user cancel these messages
-		if(bugme){
-			$popup.find('input[name=bugme], input[name=bugme] + label').show();
-		}
+		$popup.show();
 
-		return $popup;
-	};
-
-	$.fn.prompt = function(message,callback,bugme,defaultValue){
-		return $(this).popup(message,callback,bugme).find("input[name=text], button").show().end();
-	};
-
-	$.fn.alert = function(message,callback,bugme){
-		return $(this).popup(message,callback,bugme);
-	};
-
-	$.fn.confirm = function(message,callback,bugme){
-		return $(this).popup(message,callback,bugme).find("button").show().end();
+		$popup.find('input[name=text]').select();
 	};
 
 })(jQuery);

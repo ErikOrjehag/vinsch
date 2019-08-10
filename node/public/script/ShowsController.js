@@ -28,37 +28,53 @@ app.controller('ShowsController', function ($scope, socket) {
   };
 
   $scope.createShow = function () {
-    $('<p>Please enter name:</p>').prompt(function (e) {
-      console.log(e.response);
-      if (e.response && e.response !== true && e.response !== "") {
-          socket.emit("create-show", e.response);
-      } else if (e.response !== false) {
-        e.preventDefault();
+    var title = 'Please enter name:';
+    var defaultValue = 'My show';
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Create' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp);
+      if (resp.button.name === "ok" && resp.text !== "") {
+          socket.emit("create-show", resp.text);
       }
     });
   };
 
+  $scope.getShowName = function (id) {
+    return $scope.model.shows.filter(function (show) { return show._id == id })[0].name;
+  }
+
   $scope.deleteShow = function (id) {
     $scope.model.tooltip = -1;
-    var name = $scope.model.shows.filter(function (show) { return show._id == id })[0].name;
-    $('<p>Are you sure you want to DELETE this show?\nType \"'+name+'\" to proceed:</p>').prompt(function (e) {
-      console.log(e.response, name);
-      if (e.response === name) {
+    var name = $scope.getShowName(id);
+    var title = 'Are you sure you want to DELETE this show?\nType \"'+name+'\" to proceed:';
+    var defaultValue = "";
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Delete' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp, name);
+      if (resp.button.name === "ok" && resp.text === name) {
           socket.emit("delete-show", id);
-      } else if (e.response !== false) {
-        e.preventDefault();
       }
     });
   };
 
   $scope.copyShow = function (id) {
     $scope.model.tooltip = -1;
-    $('<p>Please enter name for copy:</p>').prompt(function (e) {
-      console.log(e.response);
-      if (e.response && e.response !== true && e.response !== "") {
-          socket.emit("copy-show", { id: id, name: e.response });
-      } else if (e.response !== false) {
-        e.preventDefault();
+    var title = 'Please enter name for copy:';
+    var defaultValue = '';
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Copy' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp);
+      if (resp.button.name === 'ok' && resp.text !== "") {
+          socket.emit("copy-show", { id: id, name: resp.text });
       }
     });
   };
@@ -70,12 +86,16 @@ app.controller('ShowsController', function ($scope, socket) {
 
   $scope.renameShow = function (id) {
     $scope.model.tooltip = -1;
-    $('<p>Please enter new name:</p>').prompt(function (e) {
-      console.log(e.response);
-      if (e.response && e.response !== true && e.response !== "") {
-          socket.emit("rename-show", { id: id, name: e.response });
-      } else if (e.response !== false) {
-        e.preventDefault();
+    var title = 'Please enter new name:';
+    var defaultValue = $scope.getShowName(id);
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Rename' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp);
+      if (resp.button.name === 'ok' && resp.text !== "") {
+          socket.emit("rename-show", { id: id, name: resp.text });
       }
     });
   };
