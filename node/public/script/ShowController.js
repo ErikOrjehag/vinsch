@@ -215,7 +215,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
 
     socket.emit("play-show", {
       start: $scope.model.selected,
-      show: $scope.model.show
+      shows: [ $scope.model.show ]
     });
 
     $scope.model.selected = -1;

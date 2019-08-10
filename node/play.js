@@ -28,22 +28,30 @@ exports.stop = function () {
 
 exports.play = async function (setup) {
 
+  console.log(setup)
+
+  // Sanity check
   if (playing) return;
+  if (setup.shows.length == 0) return;
+  for (var i = 0; i < setup.shows.length; i++) {
+    if (setup.shows[i].keyframes.length < 2) {
+      return
+    }
+  }
 
   await geom.init();
 
-  var keyframes = setup.show.keyframes;
-  if (keyframes.length < 2) return;
+  var current_show = 0;
 
   var ts = time();
   current = setup.start + 1;
-  var prev = keyframes[current - 1];
-  var target = keyframes[current];
+  var prev = setup.shows[current_show].keyframes[current - 1];
+  var target = setup.shows[current_show].keyframes[current];
 
   playing = true;
 
-  socket.send_playing(setup.show._id, playing);
-  socket.send_current(setup.show._id, current);
+  socket.send_playing(setup.shows[current_show]._id, true);
+  socket.send_current(setup.shows[current_show]._id, current);
 
   while (playing) {
     var elapsed = time() - ts;
@@ -58,13 +66,26 @@ exports.play = async function (setup) {
     var overshoot = elapsed - target.time;
     if (overshoot > 0) {
       current++;
-      if (current == keyframes.length) {
-        break;
+      if (current == setup.shows[current_show].keyframes.length) {
+        // Next show
+        current_show++;
+        if (current_show == setup.shows.length) {
+          current_show--;
+          break;
+        } else {
+          socket.send_playing(setup.shows[current_show-1]._id, false);
+          socket.send_playing(setup.shows[current_show]._id, true);
+          var prevKeyframes = setup.shows[current_show-1].keyframes;
+          prev = prevKeyframes[prevKeyframes.length - 1];
+          current = 0;
+          target = setup.shows[current_show].keyframes[current];
+        }
+      } else {
+        prev = setup.shows[current_show].keyframes[current - 1];
+        target = setup.shows[current_show].keyframes[current];
       }
       ts = time() - overshoot;
-      prev = keyframes[current - 1];
-      target = keyframes[current];
-      socket.send_current(setup.show._id, current);
+      socket.send_current(setup.shows[current_show]._id, current);
     }
   }
 
@@ -73,8 +94,8 @@ exports.play = async function (setup) {
   playing = false;
   current = -1;
 
-  socket.send_playing(setup.show._id, playing);
-  socket.send_current(setup.show._id, current);
+  socket.send_playing(setup.shows[current_show]._id, playing);
+  socket.send_current(setup.shows[current_show]._id, current);
 
   await geom.stop();
 };
