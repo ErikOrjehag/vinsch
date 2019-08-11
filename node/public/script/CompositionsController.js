@@ -75,4 +75,36 @@ app.controller('CompositionsController', function ($scope, socket) {
     socket.emit("make-default-composition", id);
   };
 
+  $scope.copyComposition = function (id) {
+    $scope.model.tooltip = -1;
+    var title = 'Please enter name for copy:';
+    var defaultValue = '';
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Copy' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp);
+      if (resp.button.name === 'ok' && resp.text !== "") {
+          socket.emit("copy-composition", { id: id, name: resp.text });
+      }
+    });
+  };
+
+  $scope.renameComposition = function (id) {
+    $scope.model.tooltip = -1;
+    var title = 'Please enter new name:';
+    var defaultValue = $scope.getCompositionName(id);
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Rename' },
+    ];
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log(resp);
+      if (resp.button.name === 'ok' && resp.text !== "") {
+          socket.emit("rename-composition", { id: id, name: resp.text });
+      }
+    });
+  };
+
 });

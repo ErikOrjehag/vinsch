@@ -226,7 +226,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
   $scope.playerStart = function () {
     // Sanity check
     if ($scope.model.selected < 0) return;
-    if ($scope.model.selected > $scope.model.show.keyframes.length-2) return;
+    if ($scope.model.selected >= $scope.model.show.keyframes.length) return;
     if ($scope.model.show.keyframes.length < 2) return;
 
     console.log("play!");

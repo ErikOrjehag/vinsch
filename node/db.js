@@ -169,3 +169,26 @@ exports.set_composition = function (composition, callback) {
     else exports.get_composition(composition._id, callback);
   });
 };
+
+exports.copy_composition = function (id, name, callback) {
+  compsdb.findOne({ _id: id }, function (err, composition) {
+    if (err) callback(err);
+    else {
+      delete composition["_id"];
+      composition.default = false;
+      composition.created = new Date();
+      composition.name = name;
+      compsdb.insert(composition, function (err) {
+        if (err) callback(err);
+        else exports.get_compositions(callback);
+      });
+    }
+  });
+};
+
+exports.rename_composition = function (id, name, callback) {
+  compsdb.update({ _id: id}, { $set: { name: name } }, {}, function (err) {
+    if (err) callback(err);
+    else exports.get_compositions(callback);
+  });
+};

@@ -7,7 +7,6 @@
 
 var Gpio = require('onoff').Gpio;
 var move = require('./move');
-var geom = require('./geom');
 var play = require('./play');
 
 var l1 = new Gpio( 6, 'out');
@@ -43,7 +42,7 @@ b1.watch((err, value) => {
 
 b2.watch((err, value) => {
   exports.set_leds("ready");
-  move.goto_first_keyframe();
+  play.goto_first_keyframe();
 });
 
 b3.watch((err, value) => {

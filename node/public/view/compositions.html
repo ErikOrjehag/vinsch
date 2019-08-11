@@ -28,6 +28,8 @@
             <div class="tooltip" ng-show="model.tooltip == $index">
               <div class="tooltip-option" such-href="/composition/{{comp._id}}">Edit</div>
               <div class="tooltip-option" ng-click="makeDefaultComposition(comp._id)">Default</div>
+              <div class="tooltip-option" ng-click="renameComposition(comp._id)">Rename</div>
+              <div class="tooltip-option" ng-click="copyComposition(comp._id)">Copy</div>
               <div class="tooltip-option" ng-click="deleteComposition(comp._id)">Delete</div>
             </div>
           </td>

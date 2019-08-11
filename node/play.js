@@ -39,42 +39,57 @@ exports.play = async function (setup) {
   var list = setup.composition.list;
 
   // Sanity check
-  if (playing) return;
-  if (list.length == 0) return;
+  if (playing) return console.log("No!");
+  if (list.length == 0) return console.log("No!");
   for (var i = 0; i < list.length; i++) {
     if (list[i].show.keyframes.length < 2) {
-      return
+      return console.log("No!");
     }
   }
 
-  console.log("Sequence:", list.map(item => item.show.name));
-  console.log("Start:", setup.start)
-
-  playing = true;
-
-  await geom.init();
-
   status.showIndex = setup.start.showIndex;
-  status.keyframeIndex = setup.start.keyframeIndex + 1;
-  status.showId = list[status.showIndex].show._id;
-  status.compositionId = setup.composition._id;
+  status.keyframeIndex = setup.start.keyframeIndex;
 
-  var ts = time();
-  var prev = list[status.showIndex].show.keyframes[status.keyframeIndex - 1];
-  var target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+  var prev = list[status.showIndex].show.keyframes[status.keyframeIndex];
 
   var scale = list[status.showIndex].scale;
   var offset = list[status.showIndex].offset;
   prev.pos.x *= scale.x; prev.pos.x += offset.x;
   prev.pos.y *= scale.y; prev.pos.y += offset.y;
   prev.pos.z *= scale.z; prev.pos.z += offset.z;
+
+  // Handle if at end of show
+  status.keyframeIndex++;
+  if (status.keyframeIndex == list[status.showIndex].show.keyframes.length) {
+    status.showIndex++;
+    if (status.showIndex == list.length) {
+      return console.log("No!");
+    }
+    status.keyframeIndex = 0;
+  }
+
+  var target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+
+  scale = list[status.showIndex].scale;
+  offset = list[status.showIndex].offset;
   target.pos.x *= scale.x; target.pos.x += offset.x;
   target.pos.y *= scale.y; target.pos.y += offset.y;
   target.pos.z *= scale.z; target.pos.z += offset.z;
 
+  status.showId = list[status.showIndex].show._id;
+  status.compositionId = setup.composition._id;
+
+  //
+
   socket.send_player_status(status);
 
+  console.log("Sequence:", list.map(item => item.show.name));
+  console.log("Start:", setup.start)
   console.log("First show: ", list[status.showIndex].show.name);
+
+  var ts = time();
+  playing = true;
+  await geom.init();
 
   while (playing) {
     var elapsed = time() - ts;
@@ -132,6 +147,8 @@ exports.play = async function (setup) {
   socket.send_player_status(status);
 
   await geom.stop();
+
+  console.log("Done!");
 };
 
 exports.play_default = function () {
@@ -159,11 +176,27 @@ exports.play_default = function () {
   });
 };
 
-setTimeout(exports.play_default, 3000);
-
 exports.goto_first_keyframe = function () {
-  db.get_default_show(function (err, show) {
+  db.get_default_composition(function (err, composition) {
     if (err) console.log(err);
-    else geom.linear_to(show.keyframes[0].pos);
+    else {
+      var item = composition.list[0];
+      db.get_show(item.show, function (err, show) {
+        if (err) console.log(err);
+        else {
+          var pos = show.keyframes[0].pos
+          var scale = item.scale;
+          var offset = item.offset;
+          pos.x *= scale.x; pos.x += offset.x;
+          pos.y *= scale.y; pos.y += offset.y;
+          pos.z *= scale.z; pos.z += offset.z;
+          geom.linear_to(pos);
+        }
+      });
+    }
   });
 };
+
+
+//setTimeout(exports.goto_first_keyframe, 3000);
+//setTimeout(exports.play_default, 3000 + 5000);

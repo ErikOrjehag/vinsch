@@ -169,6 +169,20 @@ exports.interface = function (io) {
       });
     });
 
+    socket.on("copy-composition", function (data) {
+      db.copy_composition(data.id, data.name, function (err, compositions) {
+        if (err) console.error(err);
+        else io.emit("compositions", compositions);
+      });
+    });
+
+    socket.on("rename-composition", function (data) {
+      db.rename_composition(data.id, data.name, function (err, compositions) {
+        if (err) console.error(err);
+        else io.emit("compositions", compositions);
+      });
+    });
+
     /* * * * * * * * * * * * * * * *
                  PLAYER
     * * * * * * * * * * * * * * * */

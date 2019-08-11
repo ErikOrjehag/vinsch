@@ -92,7 +92,7 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
     var show = shows[showIndex];
 
     var defaultValue = "1";
-    var title = 'Enter keyframe 1-' + (show.keyframes.length-1); // One indexed but can not have last
+    var title = 'Enter keyframe 1-' + (show.keyframes.length); // One indexed
 
     var buttons = [
       { name: 'cancel', text: 'Cancel' },
@@ -103,7 +103,7 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
       console.log("resp", resp);
       if (resp.button.name == 'ok') {
         var keyframeIndex = parseInt(resp.text + "") - 1; // Zero indexed
-        if (!isNaN(keyframeIndex) && keyframeIndex >= 0 && keyframeIndex < show.keyframes.length-1) {
+        if (!isNaN(keyframeIndex) && keyframeIndex >= 0 && keyframeIndex < show.keyframes.length) {
           $scope.model.selected = {
             showIndex: showIndex,
             keyframeIndex: keyframeIndex
