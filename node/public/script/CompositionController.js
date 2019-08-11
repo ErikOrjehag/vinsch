@@ -79,6 +79,9 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
   socket.on('player-status', function (status) {
     console.log('status', status);
     $scope.model.playerStatus = status;
+    if (status.compositionId) {
+      $scope.model.selected = null;
+    }
   });
 
   /* * * * * * * * * * * * * * * *

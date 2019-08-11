@@ -32,6 +32,10 @@ exports.get_setpoint = function () {
 // Used to implement linear_to function, that cuts up motion into small steps.
 var linear_active = false;
 
+exports.is_linear_active = function () {
+  return linear_active;
+};
+
 // Helper to get current time in seconds
 function time() {
   return Date.now() / 1000.0;

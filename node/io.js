@@ -47,7 +47,7 @@ b2.watch((err, value) => {
 
 b3.watch((err, value) => {
   exports.set_leds("idle");
-  move.stop();
+  play.stop();
 });
 
 b4.watch((err, value) => {

@@ -32,6 +32,10 @@ exports.stop = function () {
   }
 }
 
+function deepCopy(thing) {
+  return JSON.parse(JSON.stringify(thing));
+}
+
 exports.play = async function (setup) {
 
   console.log("Play!");
@@ -46,11 +50,15 @@ exports.play = async function (setup) {
       return console.log("No!");
     }
   }
+  if (geom.is_linear_active()) {
+    return console.log("No!");
+  }
 
   status.showIndex = setup.start.showIndex;
   status.keyframeIndex = setup.start.keyframeIndex;
 
-  var prev = list[status.showIndex].show.keyframes[status.keyframeIndex];
+  var prev = deepCopy(list[status.showIndex].show.keyframes[status.keyframeIndex]);
+  console.log(prev);
 
   var scale = list[status.showIndex].scale;
   var offset = list[status.showIndex].offset;
@@ -68,7 +76,7 @@ exports.play = async function (setup) {
     status.keyframeIndex = 0;
   }
 
-  var target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+  var target = deepCopy(list[status.showIndex].show.keyframes[status.keyframeIndex]);
 
   scale = list[status.showIndex].scale;
   offset = list[status.showIndex].offset;
@@ -119,14 +127,13 @@ exports.play = async function (setup) {
           offset = list[status.showIndex].offset;
           scale = list[status.showIndex].scale;
           status.showId = list[status.showIndex].show._id;
-          Object.assign(prev, target);
+          prev = deepCopy(target);
           status.keyframeIndex = 0;
-          target = list[status.showIndex].show.keyframes[status.keyframeIndex];
-
+          target = deepCopy(list[status.showIndex].show.keyframes[status.keyframeIndex]);
         }
       } else {
-        Object.assign(prev, target);
-        target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+        prev = deepCopy(target);
+        target = deepCopy(list[status.showIndex].show.keyframes[status.keyframeIndex]);
       }
 
       target.pos.x *= scale.x; target.pos.x += offset.x;
@@ -176,6 +183,7 @@ exports.play_default = function () {
   });
 };
 
+
 exports.goto_first_keyframe = function () {
   db.get_default_composition(function (err, composition) {
     if (err) console.log(err);
@@ -196,7 +204,3 @@ exports.goto_first_keyframe = function () {
     }
   });
 };
-
-
-//setTimeout(exports.goto_first_keyframe, 3000);
-//setTimeout(exports.play_default, 3000 + 5000);
