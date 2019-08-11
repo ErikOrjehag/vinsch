@@ -53,11 +53,10 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
   * * * * * * * * * * * * * * * */
 
   $scope.$on("$destroy", function () {
-    // TODO
-    socket.off("show-"+id);
-    socket.off("current-"+id);
-    socket.off("playing-"+id);
+    socket.off("shows");
+    socket.off("composition-"+id);
     socket.off("position");
+    socket.off("player-status");
     $scope.playerStop();
   });
 
@@ -110,7 +109,14 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
             keyframeIndex: keyframeIndex
           };
           $scope.$apply();
-          socket.emit("goto", show.keyframes[keyframeIndex].pos);
+          var pos = {};
+          Object.assign(pos, show.keyframes[keyframeIndex].pos);
+          var scale = $scope.model.composition.list[showIndex].scale;
+          var offset = $scope.model.composition.list[showIndex].offset;
+          pos.x *= scale.x; pos.x += offset.x;
+          pos.y *= scale.y; pos.y += offset.y;
+          pos.z *= scale.z; pos.z += offset.z;
+          socket.emit("goto", pos);
         }
       }
     });

@@ -68,6 +68,9 @@ exports.play = async function (setup) {
   prev.pos.x *= scale.x; prev.pos.x += offset.x;
   prev.pos.y *= scale.y; prev.pos.y += offset.y;
   prev.pos.z *= scale.z; prev.pos.z += offset.z;
+  target.pos.x *= scale.x; target.pos.x += offset.x;
+  target.pos.y *= scale.y; target.pos.y += offset.y;
+  target.pos.z *= scale.z; target.pos.z += offset.z;
 
   socket.send_player_status(status);
 
@@ -132,14 +135,31 @@ exports.play = async function (setup) {
 };
 
 exports.play_default = function () {
-  db.get_default_show(function (err, show) {
+  db.get_default_composition(function (err, composition) {
     if (err) console.log(err);
-    else exports.play({
-      start: 0,
-      show: show
-    });
+    else {
+      db.get_shows(function (err, shows) {
+        if (err) console.log(err);
+        else {
+          composition.list.forEach(function (item) {
+            item.show = shows.filter(function (show) {
+              return show._id == item.show;
+            })[0];
+          });
+          exports.play({
+            start: {
+              showIndex: 0,
+              keyframeIndex: 0
+            },
+            composition: composition
+          });
+        }
+      });
+    }
   });
 };
+
+setTimeout(exports.play_default, 3000);
 
 exports.goto_first_keyframe = function () {
   db.get_default_show(function (err, show) {

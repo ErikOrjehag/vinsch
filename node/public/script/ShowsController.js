@@ -6,12 +6,24 @@ app.controller('ShowsController', function ($scope, socket) {
     tooltip: -1
   };
 
-  socket.emit('get-shows');
+  /* * * * * * * * * * * * * * * *
+              SOCKET
+  * * * * * * * * * * * * * * * */
+
+  $scope.$on("$destroy", function () {
+    socket.off("shows");
+  });
 
   socket.on("shows", function (shows) {
     console.log(shows);
     $scope.model.shows = shows;
   });
+
+  socket.emit('get-shows');
+
+  /* * * * * * * * * * * * * * * *
+              TOOLTIP
+  * * * * * * * * * * * * * * * */
 
   $scope.onTooltip = function (index) {
     console.log(index);

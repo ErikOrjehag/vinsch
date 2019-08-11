@@ -8,6 +8,7 @@
 var Gpio = require('onoff').Gpio;
 var move = require('./move');
 var geom = require('./geom');
+var play = require('./play');
 
 var l1 = new Gpio( 6, 'out');
 var l2 = new Gpio(13, 'out');
@@ -37,7 +38,7 @@ exports.set_leds("idle");
 
 b1.watch((err, value) => {
   exports.set_leds("playing");
-  move.play_default();
+  play.play_default();
 });
 
 b2.watch((err, value) => {

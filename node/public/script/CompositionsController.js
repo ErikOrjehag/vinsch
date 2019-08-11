@@ -6,12 +6,23 @@ app.controller('CompositionsController', function ($scope, socket) {
     tooltip: -1
   };
 
-  socket.emit('get-compositions');
+  /* * * * * * * * * * * * * * * *
+              SOCKET
+  * * * * * * * * * * * * * * * */
+  $scope.$on("$destroy", function () {
+    socket.off("shows");
+  });
 
   socket.on("compositions", function (compositions) {
     console.log(compositions);
     $scope.model.compositions = compositions;
   });
+
+  socket.emit('get-compositions');
+
+  /* * * * * * * * * * * * * * * *
+              TOOLTIP
+  * * * * * * * * * * * * * * * */
 
   $scope.onTooltip = function (index) {
     console.log(index);

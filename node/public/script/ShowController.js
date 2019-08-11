@@ -65,11 +65,9 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
   * * * * * * * * * * * * * * * */
 
   $scope.$on("$destroy", function () {
-    // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     socket.off("show-"+id);
-    socket.off("current-"+id);
-    socket.off("playing-"+id);
     socket.off("position");
+    socket.off("player-status");
     $scope.playerStop();
   });
 

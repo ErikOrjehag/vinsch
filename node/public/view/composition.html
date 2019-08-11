@@ -13,8 +13,8 @@
         <div class="button" ng-click="stop()">Stop</div>
       </div>
       <div style="display: inline;">
-        <div class="button" ng-click="playerStart()" ng-show="!model.playing">&#9654;</div>
-        <div class="button" ng-click="playerStop()" ng-show="model.playing">&#9646;&#9646;</div>
+        <div class="button" ng-click="playerStart()" ng-show="!(model.playerStatus.compositionId == model.composition._id)">&#9654;</div>
+        <div class="button" ng-click="playerStop()" ng-show="model.playerStatus.compositionId == model.composition._id">&#9646;&#9646;</div>
       </div>
     </div>
 
