@@ -63,6 +63,12 @@ exports.play = async function (setup) {
   var prev = list[status.showIndex].show.keyframes[status.keyframeIndex - 1];
   var target = list[status.showIndex].show.keyframes[status.keyframeIndex];
 
+  var scale = list[status.showIndex].scale;
+  var offset = list[status.showIndex].offset;
+  prev.pos.x *= scale.x; prev.pos.x += offset.x;
+  prev.pos.y *= scale.y; prev.pos.y += offset.y;
+  prev.pos.z *= scale.z; prev.pos.z += offset.z;
+
   socket.send_player_status(status);
 
   console.log("First show: ", list[status.showIndex].show.name);
@@ -70,16 +76,12 @@ exports.play = async function (setup) {
   while (playing) {
     var elapsed = time() - ts;
     var progress = elapsed / target.time;
-    var offset = list[status.showIndex].offset;
-    var scale = list[status.showIndex].scale;
     var carrot = {
       x: prev.pos.x + (target.pos.x - prev.pos.x) * progress,
       y: prev.pos.y + (target.pos.y - prev.pos.y) * progress,
       z: prev.pos.z + (target.pos.z - prev.pos.z) * progress
     }
-    carrot.x *= scale.x; carrot.x += offset.x;
-    carrot.y *= scale.y; carrot.y += offset.y;
-    carrot.z *= scale.z; carrot.z += offset.z;
+
     await geom.go_to(carrot);
 
     var overshoot = elapsed - target.time;
@@ -96,16 +98,23 @@ exports.play = async function (setup) {
         } else {
           // There is another show
           console.log("Continue width: ", list[status.showIndex].show.name);
+          offset = list[status.showIndex].offset;
+          scale = list[status.showIndex].scale;
           status.showId = list[status.showIndex].show._id;
-          var prevKeyframes = list[status.showIndex-1].show.keyframes;
-          prev = prevKeyframes[prevKeyframes.length-1];
+          Object.assign(prev, target);
           status.keyframeIndex = 0;
           target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+
         }
       } else {
-        prev = list[status.showIndex].show.keyframes[status.keyframeIndex-1];
+        Object.assign(prev, target);
         target = list[status.showIndex].show.keyframes[status.keyframeIndex];
       }
+
+      target.pos.x *= scale.x; target.pos.x += offset.x;
+      target.pos.y *= scale.y; target.pos.y += offset.y;
+      target.pos.z *= scale.z; target.pos.z += offset.z;
+
       ts = time() - overshoot;
       socket.send_player_status(status);
     }

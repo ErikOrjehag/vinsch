@@ -107,7 +107,7 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     $scope.model.selected = -1;
     $scope.model.tooltip = -1;
 
-    show = showDeepCopy();
+    var show = showDeepCopy();
 
     var pos = show.keyframes[index].pos;
     var defaultValue = (pos.x.toFixed(2) + " " +

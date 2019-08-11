@@ -93,7 +93,7 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
     var show = shows[showIndex];
 
     var defaultValue = "1";
-    var title = 'Enter keyframe 1-' + (show.keyframes.length); // One indexed
+    var title = 'Enter keyframe 1-' + (show.keyframes.length-1); // One indexed but can not have last
 
     var buttons = [
       { name: 'cancel', text: 'Cancel' },
@@ -104,7 +104,7 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
       console.log("resp", resp);
       if (resp.button.name == 'ok') {
         var keyframeIndex = parseInt(resp.text + "") - 1; // Zero indexed
-        if (!isNaN(keyframeIndex) && keyframeIndex >= 0 && keyframeIndex < show.keyframes.length) {
+        if (!isNaN(keyframeIndex) && keyframeIndex >= 0 && keyframeIndex < show.keyframes.length-1) {
           $scope.model.selected = {
             showIndex: showIndex,
             keyframeIndex: keyframeIndex
@@ -156,6 +156,72 @@ app.controller('CompositionController', function ($scope, socket, $routeParams, 
     var composition = compositionDeepCopy();
     composition.list.splice(index, 1);
     socket.emit("set-composition", composition);
+  };
+
+  $scope.editOffset = function (index) {
+    console.log("edit offset:", index);
+    $scope.model.tooltip = -1;
+    $scope.model.selected = null;
+
+    var composition = compositionDeepCopy();
+
+    var offset = composition.list[index].offset;
+    var defaultValue = (offset.x.toFixed(2) + " " +
+                        offset.y.toFixed(2) + " " +
+                        offset.z.toFixed(2));
+
+    var title = 'Enter offset for #'+(index+1)+' like x y z';
+
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Ok' }
+    ];
+
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log("resp", resp)
+      if (resp.button.name == 'ok') {
+        var inOffset = (resp.text + "").split(" ").map(function (num) { return parseFloat(num) });
+        if (inOffset.length == 3 && !isNaN(inOffset[0]) && !isNaN(inOffset[1]) && !isNaN(inOffset[2])) {
+          offset.x = inOffset[0];
+          offset.y = inOffset[1];
+          offset.z = inOffset[2];
+          socket.emit("set-composition", composition);
+        }
+      }
+    });
+  };
+
+  $scope.editScale = function (index) {
+    console.log("edit scale:", index);
+    $scope.model.tooltip = -1;
+    $scope.model.selected = null;
+
+    var composition = compositionDeepCopy();
+
+    var scale = composition.list[index].scale;
+    var defaultValue = (scale.x.toFixed(2) + " " +
+                        scale.y.toFixed(2) + " " +
+                        scale.z.toFixed(2));
+
+    var title = 'Enter scale for #'+(index+1)+' like x y z';
+
+    var buttons = [
+      { name: 'cancel', text: 'Cancel' },
+      { name: 'ok', text: 'Ok' }
+    ];
+
+    $.fn.prompt(title, defaultValue, buttons, function (resp) {
+      console.log("resp", resp)
+      if (resp.button.name == 'ok') {
+        var inScale = (resp.text + "").split(" ").map(function (num) { return parseFloat(num) });
+        if (inScale.length == 3 && !isNaN(inScale[0]) && !isNaN(inScale[1]) && !isNaN(inScale[2])) {
+          scale.x = inScale[0];
+          scale.y = inScale[1];
+          scale.z = inScale[2];
+          socket.emit("set-composition", composition);
+        }
+      }
+    });
   };
 
   /* * * * * * * * * * * * * * * *

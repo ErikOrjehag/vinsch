@@ -55,6 +55,8 @@
               <div class="tooltip" ng-show="model.tooltip == $index">
                 <div class="tooltip-option" ng-click="goto($index)">Goto</div>
                 <div class="tooltip-option" ng-click="addAfter($index)">Add after</div>
+                <div class="tooltip-option" ng-click="editOffset($index)">Edit offset</div>
+                <div class="tooltip-option" ng-click="editScale($index)">Edit scale</div>
                 <div class="tooltip-option" ng-click="upShow($index)" ng-hide="$index==0">Move up</div>
                 <div class="tooltip-option" ng-click="downShow($index)" ng-hide="$index==model.composition.list.length-1">Move down</div>
                 <div class="tooltip-option" ng-click="deleteShow($index)">Delete</div>
@@ -70,7 +72,7 @@
         <select ng-model="model.selectedShow" ng-options="show.name for show in model.shows">
         </select>
       </div>
-      <div class="button" ng-click="addAfter(model.composition.shows.length-1)">Add</div>
+      <div class="button" ng-click="addAfter(model.composition.list.length-1)">Add</div>
     </div>
   </div>
 </div>
