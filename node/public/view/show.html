@@ -25,18 +25,18 @@
               <div ng-bind-html="frame.pos | coordinate" class="monospace"></div>
             </td>
             <td style="text-align: right; width: 50px;">
-              <input ng-blur="changeTime()" style="width: 50px" type="number" ng-model="frame.time" ng-hide="$index == 0" required="" min="0.1" max="999" step="0.1">
+              <input ng-blur="changeTime()" style="width: 50px" type="number" ng-model="frame.time" required="" min="0.1" max="999" step="0.1">
             </td>
             <td class="tooltip-container" ng-mouseenter="onTooltip($index)" ng-mouseleave="offTooltip()">
-              <div class="list-index" ng-bind="$index + 1" ng-class="{ 'selected': (model.selected == $index), 'current': (model.current == $index) }"></div>
+              <div class="list-index" ng-bind="$index + 1" ng-class="{ 'selected': (model.selected == $index), 'current': (model.playerStatus.keyframeIndex == $index) }"></div>
               <div class="tooltip" ng-show="model.tooltip == $index">
                 <div class="tooltip-option" ng-click="gotoKeyframe($index)">Goto</div>
                 <div class="tooltip-option" ng-click="addAfter($index)">Add after</div>
                 <div class="tooltip-option" ng-click="timeFromSpeed($index)" ng-hide="$index == 0">Time from speed</div>
                 <div class="tooltip-option" ng-click="updatePosition($index)">Position from current</div>
                 <div class="tooltip-option" ng-click="editPosition($index)">Edit position</div>
-                <div class="tooltip-option" ng-click="upKeyframe($index)">Move up</div>
-                <div class="tooltip-option" ng-click="downKeyframe($index)">Move down</div>
+                <div class="tooltip-option" ng-click="upKeyframe($index)" ng-hide="$index==0">Move up</div>
+                <div class="tooltip-option" ng-click="downKeyframe($index)" ng-hide="$index==model.show.keyframes.length-1">Move down</div>
                 <div class="tooltip-option" ng-click="deleteKeyframe($index)">Delete</div>
               </div>
             </td>
@@ -48,10 +48,28 @@
     <div class="button" ng-click="addAfter(model.show.keyframes.length-1)">Add</div>
 
     <div style="margin-top: 16px;">
-      <span>Speed:</span>
-      <input style="width: 70px" type="number" ng-model="model.speed" required="" min="0.01" max="5" step="0.01">
-      <span>m/s</span>
-    </div>
+      <div>
+        <span>Speed:</span>
+        <input style="width: 50px" type="number" ng-model="model.speed" required="" min="0.01" max="5" step="0.01">
+        <span>m/s</span>
+      </div>
+      <!--
+      <hr/>
+      <div>
+        <div>Offset (x y z):</div>
+        <input style="width: 50px" type="number" ng-model="model.offset.x" required="" min="-100" max="100" step="0.01">
+        <input style="width: 50px" type="number" ng-model="model.offset.y" required="" min="-100" max="100" step="0.01">
+        <input style="width: 50px" type="number" ng-model="model.offset.z" required="" min="-100" max="100" step="0.01">
+        <span>m</span>
+      </div>
+      <br/>
+      <div>
+        <div>Scale (x y z):</div>
+        <input style="width: 50px" type="number" ng-model="model.scale.x" required="" min="-100" max="100" step="0.01">
+        <input style="width: 50px" type="number" ng-model="model.scale.y" required="" min="-100" max="100" step="0.01">
+        <input style="width: 50px" type="number" ng-model="model.scale.z" required="" min="-100" max="100" step="0.01">
+      </div>
+      -->
   </div>
 </div>
 
@@ -67,8 +85,8 @@
       </td>
       <td style="padding-left: 10px;">
         <div style="margin-top: 10px;">
-          <div class="button play-stop" ng-click="playShow()" ng-show="!model.playing">&#9654;</div>
-          <div class="button play-stop" ng-click="stopShow()" ng-show="model.playing">&#9646;&#9646;</div>
+          <div class="button play-stop" ng-click="playerStart()" ng-show="!(model.playerStatus.showId == model.show._id)">&#9654;</div>
+          <div class="button play-stop" ng-click="playerStop()" ng-show="model.playerStatus.showId == model.show._id">&#9646;&#9646;</div>
         </div>
         <div style="margin-top: 10px;">
           <div class="button" ng-click="stop()">Stop</div>

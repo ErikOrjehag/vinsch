@@ -8,16 +8,39 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
   $scope.model = {
     pos: { x: 0, y: 0, z: 0 },
     selected: -1,
-    current: -1,
-    playing: false,
+    playerStatus: null,
     control: false,
     tooltip: -1,
-    speed: 0.5
+    speed: 0.5,
+    offset: { x: 0.0, y: 0.0, z: 0.0 },
+    scale: { x: 1.0, y: 1.0, z: 1.0 }
   };
+
+  /* * * * * * * * * * * * * * * *
+             HELPERS
+  * * * * * * * * * * * * * * * */
 
   $scope.prettyModel = function () {
     return JSON.stringify($scope.model, null, 2);
   };
+
+  function showDeepCopy() {
+    return jQuery.extend(true, {}, $scope.model.show);
+  }
+
+  function calcTime(p1, p2) {
+    var dist = Math.sqrt(
+      Math.pow(p1.x - p2.x, 2) +
+      Math.pow(p1.y - p2.y, 2) +
+      Math.pow(p1.z - p2.z, 2));
+    var time = parseFloat((dist / $scope.model.speed).toFixed(1));
+    if (time == 0) time = 10;
+    return time;
+  };
+
+  /* * * * * * * * * * * * * * * *
+              TOOLTIP
+  * * * * * * * * * * * * * * * */
 
   $scope.onTooltip = function (index) {
     console.log(index);
@@ -29,12 +52,25 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     $scope.model.tooltip = -1;
   };
 
-  function showDeepCopy() {
-    return jQuery.extend(true, {}, $scope.model.show);
-  }
+  /* * * * * * * * * * * * * * * *
+              Control
+  * * * * * * * * * * * * * * * */
 
   $scope.$watch('model.control', function () {
     $scope.model.selected = -1;
+  });
+
+  /* * * * * * * * * * * * * * * *
+              SOCKET
+  * * * * * * * * * * * * * * * */
+
+  $scope.$on("$destroy", function () {
+    // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    socket.off("show-"+id);
+    socket.off("current-"+id);
+    socket.off("playing-"+id);
+    socket.off("position");
+    $scope.playerStop();
   });
 
   socket.on('show-'+id, function (show) {
@@ -44,28 +80,18 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     OnShowRecieved();
   });
 
-  socket.on('current-'+id, function (index) {
-    console.log('current', index);
-    $scope.model.current = index;
-  });
-
-  socket.on('playing-'+id, function (playing) {
-    console.log('playing', playing);
-    $scope.model.playing = playing;
-  });
-
   socket.on("position", function (position) {
     $scope.model.pos = position;
   });
 
-  $scope.$on("$destroy", function () {
-    // TODO
-    socket.off("show-"+id);
-    socket.off("current-"+id);
-    socket.off("playing-"+id);
-    socket.off("position");
-    $scope.stopShow();
+  socket.on('player-status', function (status) {
+    console.log('status', status);
+    $scope.model.playerStatus = status;
   });
+
+  /* * * * * * * * * * * * * * * *
+                EDIT
+  * * * * * * * * * * * * * * * */
 
   $scope.updatePosition = function (index) {
     console.log("position:", index);
@@ -123,27 +149,6 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
         socket.emit("set-show", show);
       }
     });
-  };
-
-  function calcTime(p1, p2) {
-    var dist = Math.sqrt(
-      Math.pow(p1.x - p2.x, 2) +
-      Math.pow(p1.y - p2.y, 2) +
-      Math.pow(p1.z - p2.z, 2));
-    var time = parseFloat((dist / $scope.model.speed).toFixed(1));
-    if (time == 0) time = 10;
-    return time;
-  };
-
-  $scope.timeFromSpeed = function (index) {
-    if (index < 1) return;
-    console.log("update time:", index);
-    $scope.model.selected = -1;
-    var show = showDeepCopy();
-    var time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
-    show.keyframes[index].time = time;
-    socket.emit("set-show", show);
-    $scope.model.tooltip = -1;
   };
 
   $scope.addAfter = function (index) {
@@ -206,7 +211,21 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
     }
   };
 
-  $scope.playShow = function () {
+  $scope.timeFromSpeed = function (index) {
+    if (index < 1) return;
+    console.log("update time:", index);
+    var show = showDeepCopy();
+    var time = calcTime(show.keyframes[index-1].pos, show.keyframes[index].pos);
+    show.keyframes[index].time = time;
+    socket.emit("set-show", show);
+    $scope.model.tooltip = -1;
+  };
+
+  /* * * * * * * * * * * * * * * *
+              PLAYER
+  * * * * * * * * * * * * * * * */
+
+  $scope.playerStart = function () {
     // Sanity check
     if ($scope.model.selected < 0) return;
     if ($scope.model.selected > $scope.model.show.keyframes.length-2) return;
@@ -214,22 +233,37 @@ app.controller('ShowController', function ($scope, socket, $routeParams, $http) 
 
     console.log("play!");
 
-    socket.emit("play-show", {
-      start: $scope.model.selected,
-      shows: [ $scope.model.show ]
+    socket.emit("player-start", {
+      start: {
+        showIndex: 0,
+        keyframeIndex: $scope.model.selected
+      },
+      composition: {
+        _id: '',
+        list: [{
+          offset: $scope.model.offset,
+          scale: $scope.model.scale,
+          show: $scope.model.show
+        }]
+      }
     });
 
     $scope.model.selected = -1;
   };
 
-  $scope.stopShow = function () {
-    socket.emit("stop-show");
+  $scope.playerStop = function () {
+    $scope.model.selected = -1;
+    socket.emit("player-stop");
   };
 
   $scope.stop = function () {
     $scope.model.selected = -1;
     socket.emit("stop");
   };
+
+  /* * * * * * * * * * * * * * * *
+              INIT
+  * * * * * * * * * * * * * * * */
 
   socket.emit('edit-show', id);
 

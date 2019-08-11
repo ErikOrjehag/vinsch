@@ -77,13 +77,7 @@ exports.delete_show = function (id, callback) {
 };
 
 exports.get_shows = function (callback) {
-  showsdb.find({}).sort({ created: -1 }).exec(function (err, shows) {
-    callback(err, shows.map(function (show) { return {
-      _id: show._id,
-      name: show.name,
-      created: show.created
-    }}));
-  })
+  showsdb.find({}).sort({ created: -1 }).exec(callback);
 };
 
 exports.copy_show = function (id, name, callback) {
@@ -133,14 +127,7 @@ exports.get_default_composition = function (callback) {
 };
 
 exports.get_compositions = function (callback) {
-  compsdb.find({}).sort({ created: -1 }).exec(function (err, compositions) {
-    callback(err, compositions.map(function (composition) { return {
-      _id: composition._id,
-      name: composition.name,
-      default: composition.default,
-      created: composition.created
-    }}));
-  })
+  compsdb.find({}).sort({ created: -1 }).exec(callback);
 };
 
 exports.create_composition = function (name, callback) {
@@ -148,7 +135,7 @@ exports.create_composition = function (name, callback) {
     name: name,
     default: false,
     created: new Date(),
-    shows: []
+    list: []
   }, function (err) {
     if (err) callback(err);
     else exports.get_compositions(callback);

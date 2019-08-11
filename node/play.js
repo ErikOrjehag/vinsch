@@ -3,19 +3,25 @@ var socket = require('./socket');
 var db = require('./db');
 var utils = require('./utils');
 
+function default_status() {
+  return {
+    showIndex: -1,
+    keyframeIndex: -1,
+    showId: null,
+    compositionId: null,
+  };
+}
+
+var status = default_status();
+
 var playing = false;
-var current = -1;
 
 function time() {
   return Date.now() / 1000.0;
 }
 
-exports.get_playing = function () {
-  return playing;
-}
-
-exports.get_current = function () {
-  return current;
+exports.get_status = function () {
+  return status;
 }
 
 exports.stop = function () {
@@ -28,74 +34,90 @@ exports.stop = function () {
 
 exports.play = async function (setup) {
 
-  console.log(setup)
+  console.log("Play!");
+
+  var list = setup.composition.list;
 
   // Sanity check
   if (playing) return;
-  if (setup.shows.length == 0) return;
-  for (var i = 0; i < setup.shows.length; i++) {
-    if (setup.shows[i].keyframes.length < 2) {
+  if (list.length == 0) return;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].show.keyframes.length < 2) {
       return
     }
   }
 
-  await geom.init();
-
-  var current_show = 0;
-
-  var ts = time();
-  current = setup.start + 1;
-  var prev = setup.shows[current_show].keyframes[current - 1];
-  var target = setup.shows[current_show].keyframes[current];
+  console.log("Sequence:", list.map(item => item.show.name));
+  console.log("Start:", setup.start)
 
   playing = true;
 
-  socket.send_playing(setup.shows[current_show]._id, true);
-  socket.send_current(setup.shows[current_show]._id, current);
+  await geom.init();
+
+  status.showIndex = setup.start.showIndex;
+  status.keyframeIndex = setup.start.keyframeIndex + 1;
+  status.showId = list[status.showIndex].show._id;
+  status.compositionId = setup.composition._id;
+
+  var ts = time();
+  var prev = list[status.showIndex].show.keyframes[status.keyframeIndex - 1];
+  var target = list[status.showIndex].show.keyframes[status.keyframeIndex];
+
+  socket.send_player_status(status);
+
+  console.log("First show: ", list[status.showIndex].show.name);
 
   while (playing) {
     var elapsed = time() - ts;
     var progress = elapsed / target.time;
+    var offset = list[status.showIndex].offset;
+    var scale = list[status.showIndex].scale;
     var carrot = {
       x: prev.pos.x + (target.pos.x - prev.pos.x) * progress,
       y: prev.pos.y + (target.pos.y - prev.pos.y) * progress,
       z: prev.pos.z + (target.pos.z - prev.pos.z) * progress
     }
+    carrot.x *= scale.x; carrot.x += offset.x;
+    carrot.y *= scale.y; carrot.y += offset.y;
+    carrot.z *= scale.z; carrot.z += offset.z;
     await geom.go_to(carrot);
 
     var overshoot = elapsed - target.time;
     if (overshoot > 0) {
-      current++;
-      if (current == setup.shows[current_show].keyframes.length) {
+      status.keyframeIndex++;
+      if (status.keyframeIndex == list[status.showIndex].show.keyframes.length) {
+        status.keyframeIndex = -1;
         // Next show
-        current_show++;
-        if (current_show == setup.shows.length) {
-          current_show--;
+        status.showIndex++;
+        if (status.showIndex == list.length) {
+          // No more shows
+          status.showIndex = -1;
           break;
         } else {
-          socket.send_playing(setup.shows[current_show-1]._id, false);
-          socket.send_playing(setup.shows[current_show]._id, true);
-          var prevKeyframes = setup.shows[current_show-1].keyframes;
-          prev = prevKeyframes[prevKeyframes.length - 1];
-          current = 0;
-          target = setup.shows[current_show].keyframes[current];
+          // There is another show
+          console.log("Continue width: ", list[status.showIndex].show.name);
+          status.showId = list[status.showIndex].show._id;
+          var prevKeyframes = list[status.showIndex-1].show.keyframes;
+          prev = prevKeyframes[prevKeyframes.length-1];
+          status.keyframeIndex = 0;
+          target = list[status.showIndex].show.keyframes[status.keyframeIndex];
         }
       } else {
-        prev = setup.shows[current_show].keyframes[current - 1];
-        target = setup.shows[current_show].keyframes[current];
+        prev = list[status.showIndex].show.keyframes[status.keyframeIndex-1];
+        target = list[status.showIndex].show.keyframes[status.keyframeIndex];
       }
       ts = time() - overshoot;
-      socket.send_current(setup.shows[current_show]._id, current);
+      socket.send_player_status(status);
     }
   }
 
   await utils.wait(2000);
 
   playing = false;
-  current = -1;
 
-  socket.send_playing(setup.shows[current_show]._id, playing);
-  socket.send_current(setup.shows[current_show]._id, current);
+  status = default_status();
+
+  socket.send_player_status(status);
 
   await geom.stop();
 };

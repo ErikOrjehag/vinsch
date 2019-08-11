@@ -104,8 +104,7 @@ exports.interface = function (io) {
       });
 
       exports.send_position(geom.get_setpoint());
-      exports.send_playing(id, play.get_playing());
-      exports.send_current(id, play.get_current());
+      exports.send_player_status(play.get_status());
     });
 
     socket.on("set-show", function (show) {
@@ -120,14 +119,19 @@ exports.interface = function (io) {
     * * * * * * * * * * * * * * * */
 
     socket.on("edit-composition", function (id) {
-      db.get_composition(id, function (err, composition) {
+
+      db.get_shows(function (err, shows) {
         if (err) console.error(err);
-        else socket.emit("composition-"+composition._id, composition);
+        else socket.emit("shows", shows);
+
+        db.get_composition(id, function (err, composition) {
+          if (err) console.error(err);
+          else socket.emit("composition-"+composition._id, composition);
+        });
       });
 
-      //exports.send_position(geom.get_setpoint());
-      //exports.send_playing(id, play.get_playing());
-      //exports.send_current(id, play.get_current());
+      exports.send_position(geom.get_setpoint());
+      exports.send_player_status(play.get_status());
     });
 
     socket.on("create-composition", function (name) {
@@ -141,6 +145,13 @@ exports.interface = function (io) {
       db.get_compositions(function (err, compositions) {
         if (err) console.error(err);
         else socket.emit("compositions", compositions);
+      });
+    });
+
+    socket.on("set-composition", function (composition) {
+      db.set_composition(composition, function (err, composition) {
+        if (err) console.error(err);
+        else io.emit("composition-"+composition._id, composition);
       });
     });
 
@@ -162,7 +173,7 @@ exports.interface = function (io) {
                  PLAYER
     * * * * * * * * * * * * * * * */
 
-    socket.on("player-play", function (setup) {
+    socket.on("player-start", function (setup) {
       play.play(setup);
     });
 
@@ -177,10 +188,6 @@ exports.send_position = function (position) {
   io_.emit("position", position);
 };
 
-exports.send_current = function (id, index) {
-  io_.emit("current-"+id, index);
-};
-
-exports.send_playing = function (id, playing) {
-  io_.emit("playing-"+id, playing);
+exports.send_player_status = function (status) {
+  io_.emit("player-status", status);
 };
