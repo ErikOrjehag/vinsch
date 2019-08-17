@@ -8,3 +8,6 @@ Folders "arduino" and "gui" are legacy and not used. Folder "node" is the system
 
 **Arduino**
 https://github.com/PaulStoffregen/Encoder
+
+## SSH
+pi@192.168.4.1
